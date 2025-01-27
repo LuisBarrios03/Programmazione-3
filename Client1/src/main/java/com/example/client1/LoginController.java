@@ -14,12 +14,11 @@ public class LoginController {
     @FXML
     protected void btn_click_change(ActionEvent event) throws IOException {
         try{
-        //FXMLLoader loader = new FXMLLoader(getClass().getResource("C:/Users/camer/progetto-programmazione-3/Client1/src/main/resources/com/example/client1/login.fxml"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/home.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
-        stage.setTitle("Nuova Scena");
+        stage.setTitle("Home Scene");
         stage.show();
         }catch (IOException e){
             e.printStackTrace();

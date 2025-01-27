@@ -2,76 +2,33 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.text.Font?>
+
 <AnchorPane id="pane_home" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <!-- Sidebar -->
-        <AnchorPane fx:id="pane_menu" layoutX="14.0" layoutY="8.0" prefHeight="577.0" prefWidth="207.0" style="-fx-background-color: #e3eaf2; -fx-background-radius: 10; -fx-padding: 10;">
+        <!-- Email List and Menu -->
+        <AnchorPane fx:id="pane_email_list" layoutX="10.0" layoutY="10.0" prefHeight="580.0" prefWidth="300.0" style="-fx-padding: 10; -fx-background-color: CCFFFF; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
             <children>
-                <Label fx:id="lbl_menu_title" layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #4a6572;" text="Menu">
-                    <font>
-                        <Font name="Arial Bold" size="18.0" />
-                    </font>
-                </Label>
-                <Button fx:id="btn_inbox_menu" layoutX="10.0" layoutY="50.0" style="-fx-background-color: #ffffff; -fx-border-color: #cfd8dc; -fx-border-radius: 5; -fx-padding: 5; -fx-cursor: hand;" text="Inbox" />
-                <Label fx:id="lbl_status_user" layoutX="129.0" layoutY="10.0" style="-fx-text-fill: GREEN;" text="Online">
-                    <font>
-                        <Font name="Arial Bold" size="18.0" />
-                    </font>
-                </Label>
-                <Label fx:id="lbl_email_logged_user" layoutX="10.0" layoutY="521.0" style="-fx-text-fill: #4a6572;" text="*email loggata*">
-                    <font>
-                        <Font name="Arial Bold" size="18.0" />
-                    </font>
-                </Label>
+                <Label fx:id="lbl_menu_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="*Email loggata*" textFill="#00786a">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+                <Label fx:id="lbl_email_list_title" layoutX="10.0" layoutY="80.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="Emails" textFill="#00796b" />
+                <Button fx:id="btn_email_1" layoutX="10.0" layoutY="110.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="First Email" />
+                <Button fx:id="btn_email_2" layoutX="10.0" layoutY="150.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="Second Email" />
+                <Button fx:id="btn_email_3" layoutX="10.0" layoutY="190.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="Third Email" />
+                <Label fx:id="lbl_status_user" layoutX="12.0" layoutY="534.0" style="-fx-text-fill: GREEN; -fx-font-size: 14;" text="Online" />
             </children>
         </AnchorPane>
 
-        <!-- Main Content -->
-        <AnchorPane fx:id="pane_messages" layoutX="220.0" layoutY="10.0" prefHeight="580.0" prefWidth="570.0" style="-fx-padding: 10;">
+        <!-- Email Detail -->
+        <AnchorPane fx:id="pane_email_detail" layoutX="320.0" layoutY="10.0" prefHeight="580.0" prefWidth="450.0" style="-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
             <children>
-                <!-- Header -->
-                <TextField fx:id="txt_search_bar" layoutX="10.0" layoutY="10.0" prefWidth="400.0" promptText="Search emails" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #cfd8dc; -fx-padding: 5;" />
-                <Button fx:id="btn_new_email" layoutX="422.0" layoutY="12.0" style="-fx-background-color: #00796b; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;" text="New Email" />
-
-                <!-- Email List -->
-                <VBox fx:id="vbox_email_list" layoutX="10.0" layoutY="60.0" prefHeight="374.0" prefWidth="561.0" spacing="10.0" style="-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
-                    <children>
-                        <!-- Email 1 -->
-                        <AnchorPane fx:id="pane_email_1" prefHeight="100.0" prefWidth="550.0" style="-fx-border-color: #cfd8dc; -fx-border-radius: 5; -fx-background-color: #f1f8ff; -fx-background-radius: 5; -fx-padding: 10;">
-                            <children>
-                                <Label fx:id="lbl_from_email1" layoutX="10.0" layoutY="10.0" text="From: sender1@example.com" />
-                                <Label fx:id="lbl_to_email1" layoutX="10.0" layoutY="30.0" text="To: recipient1@example.com" />
-                                <Label fx:id="lbl_subject_email1" layoutX="10.0" layoutY="50.0" text="Subject: First Email" />
-                                <Label fx:id="lbl_body_email1" layoutX="10.0" layoutY="70.0" text="This is the body of the first email." wrapText="true" />
-                            </children>
-                        </AnchorPane>
-
-                        <!-- Email 2 -->
-                        <AnchorPane fx:id="pane_email_2" prefHeight="100.0" prefWidth="550.0" style="-fx-border-color: #cfd8dc; -fx-border-radius: 5; -fx-background-color: #f1f8ff; -fx-background-radius: 5; -fx-padding: 10;">
-                            <children>
-                                <Label fx:id="lbl_from_email2" layoutX="10.0" layoutY="10.0" text="From: sender2@example.com" />
-                                <Label fx:id="lbl_to_email2" layoutX="10.0" layoutY="30.0" text="To: recipient2@example.com" />
-                                <Label fx:id="lbl_subject_email2" layoutX="10.0" layoutY="50.0" text="Subject: Second Email" />
-                                <Label fx:id="lbl_body_email2" layoutX="10.0" layoutY="70.0" text="This is the body of the second email." wrapText="true" />
-                            </children>
-                        </AnchorPane>
-
-                        <!-- Email 3 -->
-                        <AnchorPane fx:id="pane_email_3" prefHeight="100.0" prefWidth="550.0" style="-fx-border-color: #cfd8dc; -fx-border-radius: 5; -fx-background-color: #f1f8ff; -fx-background-radius: 5; -fx-padding: 10;">
-                            <children>
-                                <Label fx:id="lbl_from_email3" layoutX="10.0" layoutY="10.0" text="From: sender3@example.com" />
-                                <Label fx:id="lbl_to_email3" layoutX="10.0" layoutY="30.0" text="To: recipient3@example.com" />
-                                <Label fx:id="lbl_subject_email3" layoutX="10.0" layoutY="50.0" text="Subject: Third Email" />
-                                <Label fx:id="lbl_body_email3" layoutX="10.0" layoutY="70.0" text="This is the body of the third email." wrapText="true" />
-                            </children>
-                        </AnchorPane>
-                    </children>
-                </VBox>
+                <Label fx:id="lbl_email_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Email Title" />
+                <Label fx:id="lbl_email_from" layoutX="10.0" layoutY="50.0" style="-fx-font-size: 14;" text="From: " />
+                <Label fx:id="lbl_email_to" layoutX="10.0" layoutY="90.0" style="-fx-font-size: 14;" text="To: " />
+                <Label fx:id="lbl_email_body" layoutX="11.0" layoutY="166.0" style="-fx-font-size: 14;" text="*Text*" wrapText="true" />
             </children>
         </AnchorPane>
     </children>
