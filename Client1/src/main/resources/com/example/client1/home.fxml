@@ -5,15 +5,17 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="pane_home" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="pane_home" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.HomeController">
     <children>
         <!-- Email List and Menu -->
         <AnchorPane fx:id="pane_email_list" layoutX="10.0" layoutY="10.0" prefHeight="580.0" prefWidth="300.0" style="-fx-padding: 10; -fx-background-color: CCFFFF; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
             <children>
                 <Label fx:id="lbl_menu_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="*Email loggata*" textFill="#00786a">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Label>
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <Button fx:id="btn_new_email" layoutX="200.0" onAction="#newMail_btn_change" layoutY="10.0" style="-fx-background-color: #00796b; -fx-text-fill: white; -fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Nuova Mail" />
                 <Label fx:id="lbl_email_list_title" layoutX="10.0" layoutY="80.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="Emails" textFill="#00796b" />
                 <Button fx:id="btn_email_1" layoutX="10.0" layoutY="110.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="First Email" />
                 <Button fx:id="btn_email_2" layoutX="10.0" layoutY="150.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="Second Email" />

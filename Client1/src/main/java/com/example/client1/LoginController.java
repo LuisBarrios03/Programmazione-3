@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 public class LoginController {
     @FXML
-    protected void btn_click_change(ActionEvent event) throws IOException {
+    public void btn_click_change(ActionEvent event) throws IOException {
         try{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/home.fxml"));
         Parent root = loader.load();

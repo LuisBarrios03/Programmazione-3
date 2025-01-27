@@ -5,37 +5,27 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            style="-fx-background-color: #CCFFFF;">
+<AnchorPane prefHeight="494.0" prefWidth="603.0" style="-fx-background-color: #CCFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
 
     <!-- Campo per l'indirizzo del destinatario -->
-    <TextField fx:id="recipientField" promptText="A"
-               layoutX="10" layoutY="10" prefWidth="580" prefHeight="30" />
+    <TextField fx:id="recipientField" layoutX="10" layoutY="10" prefHeight="30" prefWidth="580" promptText="A" />
 
     <!-- Campo per Cc -->
-    <TextField fx:id="ccField" promptText="Cc"
-               layoutX="10" layoutY="50" prefWidth="285" prefHeight="30" />
+    <TextField fx:id="ccField" layoutX="10" layoutY="50" prefHeight="30" prefWidth="285" promptText="Cc" />
 
     <!-- Campo per Ccn -->
-    <TextField fx:id="bccField" promptText="Ccn"
-               layoutX="305" layoutY="50" prefWidth="285" prefHeight="30" />
+    <TextField fx:id="bccField" layoutX="305" layoutY="50" prefHeight="30" prefWidth="285" promptText="Ccn" />
 
     <!-- Campo per l'oggetto -->
-    <TextField fx:id="subjectField" promptText="Oggetto"
-               layoutX="10" layoutY="90" prefWidth="580" prefHeight="30" />
+    <TextField fx:id="subjectField" layoutX="10" layoutY="90" prefHeight="30" prefWidth="580" promptText="Oggetto" />
 
     <!-- Area per il corpo del messaggio -->
-    <TextArea fx:id="messageBody" promptText="Scrivi il tuo messaggio qui..."
-              layoutX="10" layoutY="130" prefWidth="580" prefHeight="300" />
+    <TextArea fx:id="messageBody" layoutX="10" layoutY="130" prefHeight="300" prefWidth="580.0" promptText="Scrivi il tuo messaggio qui..." />
 
     <!-- Pulsante "Invia" -->
-    <Button fx:id="sendButton" text="Invia"
-            layoutX="400" layoutY="450" prefWidth="90" prefHeight="30"
-            style="-fx-background-color: #00796b; -fx-text-fill: white;" />
+    <Button fx:id="sendButton" layoutX="400" layoutY="450" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Invia" />
 
     <!-- Pulsante "Allega" -->
-    <Button fx:id="attachButton" text="Allega"
-            layoutX="500" layoutY="450" prefWidth="90" prefHeight="30"
-            style="-fx-background-color: #00796b; -fx-text-fill: white;" />
+    <Button fx:id="attachButton" layoutX="500" layoutY="450" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Allega" />
 
 </AnchorPane>
