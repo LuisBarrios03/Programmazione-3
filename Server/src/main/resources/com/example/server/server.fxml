@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane prefHeight="486.0" prefWidth="601.0" style="-fx-background-color: CCFFFF;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="ServerController">
+    <top>
+        <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Mail Server Log" textFill="#00796b" BorderPane.alignment="CENTER" />
+    </top>
+    <center>
+        <TextArea fx:id="logArea" editable="false" style="-fx-font-family: monospace;" wrapText="true" />
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10px;">
+            <Button onAction="#startServer" text="Start Server" />
+            <Button onAction="#stopServer" text="Stop Server" />
+            <Button onAction="#clearLog" text="Clear Log" />
+        </HBox>
+    </bottom>
+</BorderPane>
