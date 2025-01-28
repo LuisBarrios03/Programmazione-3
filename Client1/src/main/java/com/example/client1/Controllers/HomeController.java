@@ -17,7 +17,7 @@ public class HomeController {
     @FXML
     public void newMail_btn_change (ActionEvent event) throws IOException {
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/Controller/send_message.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
             Parent root = loader.load();
             Stage newWindow = new Stage();
             newWindow.setTitle("New Mail Scene");
@@ -31,7 +31,7 @@ public class HomeController {
     @FXML
     public void LogOut_btn_change(ActionEvent event) throws IOException {
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/Controller/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));

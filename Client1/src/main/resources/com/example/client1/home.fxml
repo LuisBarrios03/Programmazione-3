@@ -19,7 +19,7 @@
                     </font>
                 </Label>
                 <Button fx:id="btn_logout" layoutX="696.0" layoutY="15.0" onAction="#LogOut_btn_change" style="-fx-background-color: #00796b; -fx-text-fill: white; -fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Logout" />
-                <Button fx:id="btn_delete_all" layoutX="658.0" layoutY="58.0" onAction="#deleteAllEmails" style="-fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Cancella Email" />
+                <Button fx:id="btn_delete_all" layoutX="658.0" layoutY="58.0" style="-fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Cancella Email" />
                 <Label fx:id="lbl_status_user" layoutX="10.0" layoutY="61.0" style="-fx-text-fill: GREEN; -fx-font-size: 14;" text="Stato Connessione: Online" />
             </children>
         </AnchorPane>
