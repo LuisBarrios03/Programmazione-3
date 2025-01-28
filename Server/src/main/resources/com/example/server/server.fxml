@@ -2,22 +2,40 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="486.0" prefWidth="601.0" style="-fx-background-color: CCFFFF;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="ServerController">
-    <top>
-        <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Mail Server Log" textFill="#00796b" BorderPane.alignment="CENTER" />
-    </top>
-    <center>
-        <TextArea fx:id="logArea" editable="false" style="-fx-font-family: monospace;" wrapText="true" />
-    </center>
-    <bottom>
-        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10px;">
-            <Button onAction="#startServer" text="Start Server" />
-            <Button onAction="#stopServer" text="Stop Server" />
-            <Button onAction="#clearLog" text="Clear Log" />
-        </HBox>
-    </bottom>
-</BorderPane>
+<VBox alignment="TOP_CENTER" spacing="10" style="-fx-padding: 15; -fx-background-color: CCFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.ServerController">
+    <!-- Header -->
+    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Mail Server Manager" />
+
+    <!-- Server State -->
+    <HBox alignment="CENTER" spacing="10">
+        <Label style="-fx-font-size: 16px;" text="Server Status:" />
+        <Label fx:id="serverStatusLabel" style="-fx-font-size: 16px; -fx-text-fill: red;" text="Stopped" />
+    </HBox>
+
+    <!-- Buttons for Server Controls -->
+    <HBox alignment="CENTER" spacing="10">
+        <Button style="-fx-font-size: 14px;" text="Start Server" />
+
+        <Button disable="true" style="-fx-font-size: 14px;" text="Stop Server" />
+    </HBox>
+
+
+    <!-- Table for displaying emails -->
+    <VBox alignment="CENTER" spacing="10">
+        <Label style="-fx-font-size: 16px;" text="Messages:" />
+        <TableView fx:id="messagesTable" prefHeight="300" prefWidth="600">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="senderColumn" text="Sender" />
+                <TableColumn fx:id="recipientsColumn" text="Recipients" />
+                <TableColumn fx:id="subjectColumn" text="Subject" />
+                <TableColumn fx:id="dateColumn" text="Date" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>
