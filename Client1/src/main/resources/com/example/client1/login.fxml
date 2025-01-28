@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="pane_login" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="475.0" style="-fx-background-color: CCFFFF; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.LoginController">
+<AnchorPane id="pane_login" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="475.0" style="-fx-background-color: CCFFFF; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.LoginController">
    <children>
       <Label id="lbl_benvenuto" layoutX="129.0" layoutY="106.0" style="-fx-text-fill: #00796b;" text="Benvenuto/a" textAlignment="CENTER">
          <font>

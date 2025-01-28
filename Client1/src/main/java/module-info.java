@@ -5,4 +5,6 @@ module com.example.client1 {
 
     opens com.example.client1 to javafx.fxml;
     exports com.example.client1;
+    exports com.example.client1.Controllers;
+    opens com.example.client1.Controllers to javafx.fxml;
 }
