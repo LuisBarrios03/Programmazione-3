@@ -2,35 +2,45 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="pane_home" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="781.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.HomeController">
+<AnchorPane id="pane_home" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="611.0" prefWidth="792.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.HomeController">
     <children>
         <!-- Email List and Menu -->
-        <AnchorPane fx:id="pane_email_list" layoutX="10.0" layoutY="10.0" prefHeight="580.0" prefWidth="300.0" style="-fx-padding: 10; -fx-background-color: CCFFFF; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
+        <AnchorPane fx:id="pane_email_list" layoutX="10.0" layoutY="6.0" prefHeight="94.0" prefWidth="774.0" style="-fx-padding: 10; -fx-background-color: #CCFFFF; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
             <children>
-                <Label fx:id="lbl_menu_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="*Email loggata*" textFill="#00786a">
+                <Label fx:id="lbl_menu_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 24; -fx-text-fill: #00796b;" text="Nome Mail Loggata" textFill="#00786a">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Button fx:id="btn_new_email" layoutX="200.0" layoutY="10.0" onAction="#newMail_btn_change" style="-fx-background-color: #00796b; -fx-text-fill: white; -fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Nuova Mail" />
-                <Label fx:id="lbl_email_list_title" layoutX="10.0" layoutY="80.0" style="-fx-font-size: 16; -fx-text-fill: #00796b;" text="Emails" textFill="#00796b" />
-                <Button fx:id="btn_email_1" layoutX="10.0" layoutY="110.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="First Email" />
-                <Button fx:id="btn_email_2" layoutX="10.0" layoutY="150.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="Second Email" />
-                <Button fx:id="btn_email_3" layoutX="10.0" layoutY="190.0" style="-fx-background-color: #f1f8ff; -fx-border-color: #cfd8dc; -fx-cursor: hand;" text="Third Email" />
-                <Label fx:id="lbl_status_user" layoutX="12.0" layoutY="534.0" style="-fx-text-fill: GREEN; -fx-font-size: 14;" text="Online" />
+                <Button fx:id="btn_logout" layoutX="696.0" layoutY="15.0" onAction="#LogOut_btn_change" style="-fx-background-color: #00796b; -fx-text-fill: white; -fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Logout" />
+                <Button fx:id="btn_delete_all" layoutX="658.0" layoutY="58.0" onAction="#deleteAllEmails" style="-fx-font-size: 12; -fx-border-radius: 5; -fx-cursor: hand;" text="Cancella Email" />
+                <Label fx:id="lbl_status_user" layoutX="10.0" layoutY="61.0" style="-fx-text-fill: GREEN; -fx-font-size: 14;" text="Stato Connessione: Online" />
             </children>
         </AnchorPane>
 
         <!-- Email Detail -->
-        <AnchorPane fx:id="pane_email_detail" layoutX="320.0" layoutY="10.0" prefHeight="580.0" prefWidth="450.0" style="-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
+        <AnchorPane fx:id="pane_email_detail" layoutX="10.0" layoutY="118.0" prefHeight="485.0" prefWidth="773.0" style="-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-color: #cfd8dc; -fx-border-radius: 10;">
             <children>
-                <Label fx:id="lbl_email_title" layoutX="10.0" layoutY="10.0" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Email Title" />
-                <Label fx:id="lbl_email_from" layoutX="10.0" layoutY="50.0" style="-fx-font-size: 14;" text="From: " />
-                <Label fx:id="lbl_email_to" layoutX="10.0" layoutY="90.0" style="-fx-font-size: 14;" text="To: " />
-                <Label fx:id="lbl_email_body" layoutX="11.0" layoutY="166.0" style="-fx-font-size: 14;" text="*Text*" wrapText="true" />
+                <TableView fx:id="emailTable" layoutX="21.0" layoutY="22.0" prefHeight="442.0" prefWidth="730.0">
+                    <columns>
+                        <TableColumn fx:id="colSelect" prefWidth="50.0" style="-fx-border-width: 1;" text="">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="selected" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colTitle" prefWidth="680.0" text="Titolo">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="title" />
+                            </cellValueFactory>
+                        </TableColumn>
+                    </columns>
+                </TableView>
             </children>
         </AnchorPane>
     </children>

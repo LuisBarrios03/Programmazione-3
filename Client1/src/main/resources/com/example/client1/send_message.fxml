@@ -23,9 +23,6 @@
     <TextArea fx:id="messageBody" layoutX="10" layoutY="130" prefHeight="300" prefWidth="580.0" promptText="Scrivi il tuo messaggio qui..." />
 
     <!-- Pulsante "Invia" -->
-    <Button fx:id="sendButton" layoutX="400" layoutY="450" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Invia" />
-
-    <!-- Pulsante "Allega" -->
-    <Button fx:id="attachButton" layoutX="500" layoutY="450" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Allega" />
+    <Button fx:id="sendButton" layoutX="498.0" layoutY="449.0" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Invia" />
 
 </AnchorPane>
