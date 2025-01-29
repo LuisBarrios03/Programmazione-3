@@ -19,9 +19,9 @@
 
     <!-- Buttons for Server Controls -->
     <HBox alignment="CENTER" spacing="10">
-        <Button style="-fx-font-size: 14px;" text="Start Server" />
+        <Button fx:id="startServerButton" style="-fx-font-size: 14px;" text="Start Server" onAction="#startServer"/>
 
-        <Button disable="true" style="-fx-font-size: 14px;" text="Stop Server" />
+        <Button fx:id="stopServerButton" disable="true" style="-fx-font-size: 14px;" text="Stop Server" onAction="#stopServer"/>
     </HBox>
 
 
