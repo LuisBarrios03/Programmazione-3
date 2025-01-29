@@ -15,7 +15,6 @@ public class ServerApplication extends Application {
         stage.setTitle("Server Application");
         stage.setScene(scene);
         stage.show();
-        //zio pera git hub è una merda
     }
 
     public static void main(String[] args) {

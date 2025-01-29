@@ -7,21 +7,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
-
 import java.io.IOException;
 
 public class LoginController {
+
     @FXML
-    public void btn_click_change(ActionEvent event) throws IOException {
+    public void btn_click_change(ActionEvent event) {
         try {
-            ConnectionClient client = new ConnectionClient();
-            client.ConnectionServer();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/home.fxml"));
             Parent root = loader.load();
+
+            HomeController homeController = loader.getController();
+            Thread clientThread = new Thread(new ConnectionClient(homeController));
+            clientThread.start();
+
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
+            System.err.println("Errore nel cambio scena: " + e.getMessage());
             e.printStackTrace();
         }
     }
