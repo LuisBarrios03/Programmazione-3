@@ -1,5 +1,7 @@
 package com.example.server;
 
+import com.example.server.model.Email;
+import com.example.server.model.MailBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,7 +39,7 @@ public class ServerController {
         for (String recipient : email.getRecipients()) {
             MailBox mailbox = mailboxes.get(recipient);
             if (mailbox != null) {
-                mailbox.receiveEmail(email);
+                mailbox.addEmail(email);
                 System.out.println("Email delivered to: " + recipient);
             } else {
                 System.out.println("Error: Recipient not found - " + recipient);

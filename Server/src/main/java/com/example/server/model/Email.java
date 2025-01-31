@@ -1,27 +1,27 @@
-package com.example.server;
+package com.example.server.model;
 
-import java.util.Date;
+import com.google.gson.Gson;
 import java.util.List;
+import java.util.UUID;
 
 public class Email {
-    private static int idCounter = 0;
-    private final int id;
+    private final String id;
     private final String sender;
     private final List<String> recipients;
     private final String subject;
     private final String body;
-    private final Date date;
+    private final String date;
 
-    public Email(String sender, List<String> recipients, String subject, String body) {
-        this.id = ++idCounter;
+    public Email(String sender, List<String> recipients, String subject, String body, String date) {
+        this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = recipients;
         this.subject = subject;
         this.body = body;
-        this.date = new Date();
+        this.date = java.time.LocalDateTime.now().toString();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -41,8 +41,18 @@ public class Email {
         return body;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
+    }
+
+    //serializzazione e deserializzazione
+    public String toJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
+    public static Email fromJson(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, Email.class);
     }
 
     @Override
