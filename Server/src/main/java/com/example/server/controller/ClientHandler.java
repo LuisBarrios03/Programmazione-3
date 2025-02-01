@@ -1,4 +1,4 @@
-package com.example.server;
+package com.example.server.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,14 +26,11 @@ public class ClientHandler implements Runnable {
                 String messaggioClient = in.readLine();
                 if (messaggioClient == null) {
                     System.out.println("Connessione persa con il client.");
-                    break; // 🔹 Il client ha chiuso la connessione
+                    break;
                 }
 
                 if (messaggioClient.equals("PING")) {
-                    out.println("PONG");  // 🔹 Risponde ai messaggi di keep-alive
-                } else {
-                    System.out.println("Messaggio ricevuto: " + messaggioClient);
-                    out.println("Ciao, Client! Messaggio ricevuto.");
+                    out.println("PONG");
                 }
             }
         } catch (IOException e) {

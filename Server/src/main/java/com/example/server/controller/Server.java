@@ -1,14 +1,32 @@
-package com.example.server;
+package com.example.server.controller;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.example.server.model.Email;
+import com.example.server.model.MailBox;
 
 public class Server {
     private static boolean running = false;
     private static ServerSocket serverSocket;
     private static final CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+    private final Map<String, MailBox> mailboxes = new HashMap<>();
+
+    public synchronized void sendEmail(Email email) {
+        for (String recipient : email.getRecipients()) {
+            MailBox mailbox = mailboxes.get(recipient);
+            if (mailbox != null) {
+                mailbox.addEmail(email);
+                System.out.println("Email delivered to: " + recipient);
+            } else {
+                System.out.println("Error: Recipient not found - " + recipient);
+            }
+        }
+    }
 
     public static void startServer(int porta) {
         if (running) return;
@@ -21,7 +39,7 @@ public class Server {
 
                 while (running) {
                     Socket clientSocket = serverSocket.accept();
-                    clientSocket.setKeepAlive(true);  // 🔹 Abilita il Keep-Alive sul socket
+                    clientSocket.setKeepAlive(true);
                     System.out.println("Client connesso: " + clientSocket.getInetAddress());
 
                     ClientHandler clientHandler = new ClientHandler(clientSocket);
@@ -42,7 +60,7 @@ public class Server {
         running = false;
         try {
             for (ClientHandler client : clients) {
-                client.stopClient();  // 🔹 Chiude tutti i client connessi
+                client.stopClient();
             }
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
