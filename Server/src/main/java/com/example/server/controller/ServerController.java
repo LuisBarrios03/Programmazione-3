@@ -29,9 +29,9 @@ public class ServerController {
     private TableColumn<Email, String> idColumn, senderColumn, recipientsColumn, subjectColumn, dateColumn;
 
     public ServerController() {
-        mailboxes.put("giorgio@mia.mail.com", new MailBox("giorgio@mia.mail.com"));
-        mailboxes.put("marco@mia.mail.com", new MailBox("marco@mia.mail.com"));
-        mailboxes.put("anna@mia.mail.com", new MailBox("anna@mia.mail.com"));
+        mailboxes.put("alessio@notamail.com", new MailBox("alessio@notamail.com"));
+        mailboxes.put("luis@notamail.com", new MailBox("luis@notamail.com"));
+        mailboxes.put("gigi@notamail.com", new MailBox("gigi@notamail.com"));
     }
 
     @FXML
