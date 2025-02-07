@@ -47,8 +47,9 @@ public class ServerController {
             startServerButton.setDisable(true);
             stopServerButton.setDisable(false);
             //MailStorage.createStorage();
-            MailBox mb = new MailBox("storage",null);
-            for(Email email : mb.getAllMails()){
+            //MailBox mb = new MailBox("storage",null);
+
+            for(Email email : Email.loadMailBox("storage")) {
                 System.out.println(email);
             }
         }

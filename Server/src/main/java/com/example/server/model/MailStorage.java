@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MailStorage {
 
-
+    private static final String storagePath = "data/";
     public  static void createStorage() {
         File storage = new File(storagePath);
         if (!storage.exists()) {
