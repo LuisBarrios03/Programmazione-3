@@ -71,6 +71,10 @@ public class Server {
         }
     }
 
+    public static void showMailboxes(){
+
+    }
+
     public static boolean isRunning() {
         return running;
     }
