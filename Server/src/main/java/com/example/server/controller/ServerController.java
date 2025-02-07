@@ -9,6 +9,8 @@ import javafx.scene.control.TableView;
 
 import com.example.server.model.Email;
 import com.example.server.model.MailBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,9 @@ public class ServerController {
     @FXML
     private TableView<Email> messagesTable;
     @FXML
-    private TableColumn<Email, String> idColumn, senderColumn, recipientsColumn, subjectColumn, dateColumn;
+    private TableColumn<Email, String> senderColumn, recipientsColumn, subjectColumn, dateColumn;
+    @FXML
+    private VBox id_serverbox;
 
     public ServerController() {
         mailboxes.put("alessio@notamail.com", new MailBox("alessio@notamail.com"));
@@ -48,7 +52,7 @@ public class ServerController {
     }
 
     @FXML
-    private void stopServer(ActionEvent e) {
+    public void stopServer() {
         if (serverRunning) {
             serverRunning = false;
             Server.stopServer();
@@ -57,6 +61,8 @@ public class ServerController {
             serverStatusLabel.setStyle("-fx-text-fill: red;");
             startServerButton.setDisable(false);
             stopServerButton.setDisable(true);
+        } else {
+            Server.stopServer();
         }
     }
 }
