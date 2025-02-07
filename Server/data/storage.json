@@ -1,0 +1,8 @@
+{
+  "id": "c5f42f8b-c11a-4b26-8b6f-7ad7d16f8c98",
+  "sender": "sender@example.com",
+  "recipients": ["recipient1@example.com", "recipient2@example.com"],
+  "subject": "Test Subject",
+  "body": "This is the body of the email.",
+  "date": "2025-02-07T10:00:00"
+}

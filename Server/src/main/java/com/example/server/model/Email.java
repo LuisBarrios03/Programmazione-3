@@ -1,10 +1,22 @@
 package com.example.server.model;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Email {
+
+    private static final String storagePath = "data/";
+
     private final String id;
     private final String sender;
     private final List<String> recipients;
@@ -18,7 +30,7 @@ public class Email {
         this.recipients = recipients;
         this.subject = subject;
         this.body = body;
-        this.date = java.time.LocalDateTime.now().toString();
+        this.date = java.time.LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
     public String getId() {
@@ -45,7 +57,7 @@ public class Email {
         return date;
     }
 
-    //serializzazione e deserializzazione
+    /*//serializzazione e deserializzazione
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
@@ -53,6 +65,22 @@ public class Email {
     public static Email fromJson(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, Email.class);
+    }*/
+    public static synchronized List<Email> loadMailBox(String account) {
+        String filePath = storagePath + account + ".json";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (Reader reader = new FileReader(filePath)) {
+            Gson gson = new Gson();
+            Type emailListType = new TypeToken<List<Email>>() {}.getType();
+            return gson.fromJson(reader, emailListType);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     @Override

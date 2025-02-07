@@ -1,4 +1,4 @@
-package com.example.server.controller;
+package com.example.server.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;
