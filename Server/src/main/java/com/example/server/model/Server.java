@@ -1,4 +1,4 @@
-package com.example.server.controller;
+package com.example.server.model;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -7,16 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.example.server.model.Email;
-import com.example.server.model.MailBox;
-
 public class Server {
     private static boolean running = false;
     private static ServerSocket serverSocket;
     private static final CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
     private final Map<String, MailBox> mailboxes = new HashMap<>();
 
-    public synchronized void sendEmail(Email email) {
+    /*public synchronized void sendEmail(Email email) {
         for (String recipient : email.getRecipients()) {
             MailBox mailbox = mailboxes.get(recipient);
             if (mailbox != null) {
@@ -27,7 +24,7 @@ public class Server {
             }
         }
     }
-
+*/
     public static void startServer(int porta) {
         if (running) return;
         running = true;

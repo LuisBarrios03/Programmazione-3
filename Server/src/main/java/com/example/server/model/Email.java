@@ -1,10 +1,22 @@
 package com.example.server.model;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Email {
+
+    private static final String storagePath = "data/";
+
     private final String id;
     private final String sender;
     private final List<String> recipients;
@@ -18,7 +30,7 @@ public class Email {
         this.recipients = recipients;
         this.subject = subject;
         this.body = body;
-        this.date = java.time.LocalDateTime.now().toString();
+        this.date = java.time.LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
     public String getId() {
@@ -54,6 +66,7 @@ public class Email {
         Gson gson = new Gson();
         return gson.fromJson(json, Email.class);
     }
+
 
     @Override
     public String toString() {
