@@ -57,7 +57,7 @@ public class Email {
         return date;
     }
 
-    /*//serializzazione e deserializzazione
+    //serializzazione e deserializzazione
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
@@ -65,23 +65,8 @@ public class Email {
     public static Email fromJson(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, Email.class);
-    }*/
-    public static synchronized List<Email> loadMailBox(String account) {
-        String filePath = storagePath + account + ".json";
-        File file = new File(filePath);
-        if (!file.exists()) {
-            return new ArrayList<>();
-        }
-
-        try (Reader reader = new FileReader(filePath)) {
-            Gson gson = new Gson();
-            Type emailListType = new TypeToken<List<Email>>() {}.getType();
-            return gson.fromJson(reader, emailListType);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
     }
+
 
     @Override
     public String toString() {

@@ -3,6 +3,7 @@ module com.example.server {
     requires javafx.fxml;
     requires java.desktop;
     requires com.google.gson;
+    requires org.json;
 
 
     opens com.example.server to javafx.fxml;
