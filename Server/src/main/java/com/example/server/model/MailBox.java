@@ -27,7 +27,6 @@ public class MailBox {
         MailStorage.saveMailbox(this);
     }*/
 
-    /*
     public static synchronized List<Email> loadMailBox(String account) {
         String filePath = storagePath + account + ".json";
         File file = new File(filePath);
@@ -44,7 +43,6 @@ public class MailBox {
             return new ArrayList<>();
         }
     }
-    */
 
     public String getAccount() {
         return account;

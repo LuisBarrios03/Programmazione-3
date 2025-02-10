@@ -30,32 +30,36 @@ public class ServerController {
     @FXML
     private TableView<Email> messagesTable;
     @FXML
-    private TableColumn<Email, String> senderColumn, recipientsColumn, subjectColumn, dateColumn;
+    private TableColumn<Email, String> idColumn;
 
     public ServerController() {
         /*mailboxes.put("alessio@notamail.com", new MailBox("alessio@notamail.com"));
         mailboxes.put("luis@notamail.com", new MailBox("luis@notamail.com"));
         mailboxes.put("gigi@notamail.com", new MailBox("gigi@notamail.com"));*/
     }
+    @FXML
+    public void init(){
+        messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    }
 
     @FXML
     private void startServer(ActionEvent e) {
+
+        messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         if (!serverRunning) {
             serverRunning = true;
             Server.startServer(5000);
-
             serverStatusLabel.setText("Running");
             serverStatusLabel.setStyle("-fx-text-fill: green;");
             startServerButton.setDisable(true);
             stopServerButton.setDisable(false);
             MailStorage.createStorage();
             MailBox mb = new MailBox("storage",null);
-            senderColumn.setCellValueFactory(new PropertyValueFactory<>("sender"));
-            recipientsColumn.setCellValueFactory(new PropertyValueFactory<>("recipients"));
-            subjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
-            dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             ObservableList<Email> observableEmails = FXCollections.observableArrayList(mb.getAllMails());
             messagesTable.setItems(observableEmails);
+            messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
     }
 
@@ -69,6 +73,7 @@ public class ServerController {
             serverStatusLabel.setStyle("-fx-text-fill: red;");
             startServerButton.setDisable(false);
             stopServerButton.setDisable(true);
+            messagesTable.getItems().clear();
         } else {
             Server.stopServer();
         }

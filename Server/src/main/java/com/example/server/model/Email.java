@@ -23,14 +23,16 @@ public class Email {
     private final String subject;
     private final String body;
     private final String date;
+    private final String cause;
 
-    public Email(String sender, List<String> recipients, String subject, String body, String date) {
+    public Email(String sender, List<String> recipients, String subject, String body, String date, String cause) {
         this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = recipients;
         this.subject = subject;
         this.body = body;
         this.date = java.time.LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        this.cause = cause;
     }
 
     public String getId() {
@@ -55,6 +57,10 @@ public class Email {
 
     public String getDate() {
         return date;
+    }
+
+    public String getCause() {
+        return cause;
     }
 
     //serializzazione e deserializzazione

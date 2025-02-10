@@ -14,9 +14,8 @@
     <!-- Server State -->
     <HBox alignment="CENTER" spacing="10">
         <Label style="-fx-font-size: 16px;" text="Server Status:" />
-        <Label fx:id="serverStatusLabel" style="-fx-font-size: 16px; -fx-text-fill: red;" text="Stopped" />
+        <Label fx:id="serverStatusLabel" style="-fx-font-size: 16px; -fx-text-fill: #b40808;" text="Stopped" />
     </HBox>
-
     <!-- Buttons for Server Controls -->
     <HBox alignment="CENTER" spacing="10">
         <Button fx:id="startServerButton" onAction="#startServer" style="-fx-font-size: 14px;" text="Start Server" />
@@ -30,10 +29,7 @@
         <Label style="-fx-font-size: 16px;" text="Messages:" />
         <TableView fx:id="messagesTable" prefHeight="300" prefWidth="600">
             <columns>
-                <TableColumn fx:id="senderColumn" prefWidth="147.19995135068893" text="Sender" />
-                <TableColumn fx:id="recipientsColumn" prefWidth="156.800048828125" text="Recipients" />
-                <TableColumn fx:id="subjectColumn" prefWidth="158.39996337890625" text="Subject" />
-                <TableColumn fx:id="dateColumn" prefWidth="136.0" text="Date" />
+                <TableColumn fx:id="idColumn" prefWidth="599.2000123858452" text="Log" />
             </columns>
         </TableView>
     </VBox>

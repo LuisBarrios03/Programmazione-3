@@ -11,6 +11,7 @@ import java.util.List;
 public class MailStorage {
 
     private static final String storagePath = "data/";
+
     public  static void createStorage() {
         File storage = new File(storagePath);
         if (!storage.exists()) {
@@ -22,7 +23,6 @@ public class MailStorage {
         }else{
             System.out.println("Cartella già esistente!");
         }
-
     }
 
     public static void saveMailbox(MailBox mailbox) {
