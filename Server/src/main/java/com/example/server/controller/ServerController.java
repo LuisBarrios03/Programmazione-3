@@ -14,8 +14,6 @@ import javafx.scene.control.TableView;
 import com.example.server.model.Email;
 import com.example.server.model.MailBox;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,17 +50,10 @@ public class ServerController {
             stopServerButton.setDisable(false);
             MailStorage.createStorage();
             MailBox mb = new MailBox("storage",null);
-
             senderColumn.setCellValueFactory(new PropertyValueFactory<>("sender"));
             recipientsColumn.setCellValueFactory(new PropertyValueFactory<>("recipients"));
             subjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
-            // Per la data, convertiamo LocalDateTime in Stringa
-            dateColumn.setCellValueFactory(cellData ->
-                    new javafx.beans.property.SimpleStringProperty(
-                            cellData.getValue().getDate().format(String.valueOf(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                    )
-            );
-            // Converti la lista in ObservableList
+            dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             ObservableList<Email> observableEmails = FXCollections.observableArrayList(mb.getAllMails());
             messagesTable.setItems(observableEmails);
         }
