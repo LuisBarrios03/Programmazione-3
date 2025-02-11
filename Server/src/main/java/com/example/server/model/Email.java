@@ -11,11 +11,12 @@ import java.lang.reflect.Type;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Email {
 
-    private static final String storagePath = "data/";
+
 
     private final String id;
     private final String sender;
@@ -23,16 +24,14 @@ public class Email {
     private final String subject;
     private final String body;
     private final String date;
-    private final String cause;
 
-    public Email(String sender, List<String> recipients, String subject, String body, String date, String cause) {
+    public Email(String sender, List<String> recipients, String subject, String body, String date) {
         this.id = UUID.randomUUID().toString();
         this.sender = sender;
-        this.recipients = recipients;
+        this.recipients = List.copyOf(recipients);
         this.subject = subject;
         this.body = body;
-        this.date = java.time.LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-        this.cause = cause;
+        this.date = date;
     }
 
     public String getId() {
@@ -59,23 +58,27 @@ public class Email {
         return date;
     }
 
-    public String getCause() {
-        return cause;
-    }
-
-    //serializzazione e deserializzazione
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
-    public static Email fromJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, Email.class);
-    }
-
 
     @Override
     public String toString() {
         return "ID: " + id + "\nFrom: " + sender + "\nTo: " + recipients + "\nSubject: " + subject + "\nDate: " + date + "\n\n" + body;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Email email = (Email) o;
+        return
+                Objects.equals(id, email.id) && Objects.equals(sender, email.sender)
+                        && Objects.equals(recipients, email.recipients)
+                        && Objects.equals(subject, email.subject)
+                        && Objects.equals(body, email.body)
+                        && Objects.equals(date, email.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, sender, recipients, subject, body, date);
+    }
+
 }

@@ -11,21 +11,29 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MailBox {
-    private final String account;
+public class MailBox implements Serializable{
+    private  String account;
     private  List<Email> emails;
 
-    private static final String storagePath = "data/";
+
+    public static MailBox deserialize(File file){
+
+    }
+
+}
+/*
 
     public MailBox(String account, List<Email> emails) {
         this.account = account;
-       this.emails= emails;
+        this.emails= emails;
     }
 
-    /*public synchronized void addEmail(Email email) {
+    */
+/*public synchronized void addEmail(Email email) {
         emails.add(email);
         MailStorage.saveMailbox(this);
-    }*/
+    }*//*
+
 
     public static synchronized List<Email> loadMailBox(String account) {
         String filePath = storagePath + account + ".json";
@@ -62,7 +70,7 @@ public class MailBox {
             for(int j = 0; j < recipients.length(); j++) {
                 recipientsList.add(recipients.getString(j));
             }
-            Email email = new Email(sender, recipientsList, subject, body, date);
+            Email email = new Email(sender, recipientsList, subject, body, date, "cause");
             emails.add(email);
         }
         this.emails = emails;
@@ -97,7 +105,8 @@ public class MailBox {
 
     //fine test
 
-    /*
+    */
+/*
         public Email getEmailById(String id) {
             for (Email email : emails) {
                 if (email.getId().equals(id)) {
@@ -115,7 +124,8 @@ public class MailBox {
             }
             return null;
         }
-    */
+    *//*
+
 
     public String toString() {
         return "MailBox{" + "account='" + account + '\'' + ", emails=" + emails + '}';

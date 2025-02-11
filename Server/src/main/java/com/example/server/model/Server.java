@@ -8,24 +8,11 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
-    private static boolean running = false;
-    private static ServerSocket serverSocket;
-    private static final CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
-    private final Map<String, MailBox> mailboxes = new HashMap<>();
+    private  boolean running = false;
+    private  ServerSocket serverSocket;
 
-    /*public synchronized void sendEmail(Email email) {
-        for (String recipient : email.getRecipients()) {
-            MailBox mailbox = mailboxes.get(recipient);
-            if (mailbox != null) {
-                mailbox.addEmail(email);
-                System.out.println("Email delivered to: " + recipient);
-            } else {
-                System.out.println("Error: Recipient not found - " + recipient);
-            }
-        }
-    }
-*/
-    public static void startServer(int porta) {
+    /*Protocollo*/
+    public  void startServer(int porta) {
         if (running) return;
         running = true;
 
@@ -36,12 +23,8 @@ public class Server {
 
                 while (running) {
                     Socket clientSocket = serverSocket.accept();
-                    clientSocket.setKeepAlive(true);
                     System.out.println("Client connesso: " + clientSocket.getInetAddress());
-
-                    ClientHandler clientHandler = new ClientHandler(clientSocket);
-                    clients.add(clientHandler);
-                    new Thread(clientHandler).start();
+                    new Thread(new ClientHandler(clientSocket)).start();
                 }
             } catch (IOException e) {
                 if (running) {
@@ -53,12 +36,9 @@ public class Server {
         }).start();
     }
 
-    public static void stopServer() {
+    public  void stopServer() {
         running = false;
         try {
-            for (ClientHandler client : clients) {
-                client.stopClient();
-            }
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
             }
@@ -68,12 +48,5 @@ public class Server {
         }
     }
 
-    public static void showMailboxes(){
-
-    }
-
-    public static boolean isRunning() {
-        return running;
-    }
 }
 

@@ -54,8 +54,6 @@ public class ServerController {
             serverStatusLabel.setStyle("-fx-text-fill: green;");
             startServerButton.setDisable(true);
             stopServerButton.setDisable(false);
-            MailStorage.createStorage();
-            MailBox mb = new MailBox("storage",null);
             idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             ObservableList<Email> observableEmails = FXCollections.observableArrayList(mb.getAllMails());
             messagesTable.setItems(observableEmails);
