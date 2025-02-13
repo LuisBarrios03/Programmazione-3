@@ -2,35 +2,36 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox id="id_serverbox" alignment="TOP_CENTER" spacing="10" style="-fx-padding: 15; -fx-background-color: CCFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.controller.ServerController">
+<VBox id="id_serverbox" alignment="TOP_CENTER" spacing="10" style="-fx-padding: 15; -fx-background-color: CCFFFF;"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.server.controller.ServerController">
+
     <!-- Header -->
     <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Mail Server Manager" />
 
     <!-- Server State -->
     <HBox alignment="CENTER" spacing="10">
         <Label style="-fx-font-size: 16px;" text="Server Status:" />
-        <Label fx:id="serverStatusLabel" style="-fx-font-size: 16px; -fx-text-fill: #b40808;" text="Stopped" />
+        <Label fx:id="serverStatusLabel" style="-fx-font-size: 12px; -fx-text-fill: #b40808;" text="Server Offline" />
     </HBox>
+
     <!-- Buttons for Server Controls -->
     <HBox alignment="CENTER" spacing="10">
-        <Button fx:id="startServerButton" onAction="#startServer" style="-fx-font-size: 14px;" text="Start Server" />
-
-        <Button fx:id="stopServerButton" disable="true" onAction="#stopServer" style="-fx-font-size: 14px;" text="Stop Server" />
+        <Button fx:id="startServerButton" onAction="#startServer" style="-fx-font-size: 14px;" text="Avvia Server" />
+        <Button fx:id="stopServerButton" disable="true" onAction="#stopServer" style="-fx-font-size: 14px;" text="Ferma Server" />
     </HBox>
 
-
-    <!-- Table for displaying emails -->
+    <!-- Log Area -->
     <VBox alignment="CENTER" spacing="10">
-        <Label style="-fx-font-size: 16px;" text="Messages:" />
-        <TableView fx:id="messagesTable" prefHeight="300" prefWidth="600">
-            <columns>
-                <TableColumn fx:id="idColumn" prefWidth="599.2000123858452" text="Log" />
-            </columns>
-        </TableView>
+        <Label style="-fx-font-size: 16px;" text="Server Log:" />
+        <ScrollPane fitToWidth="true" fitToHeight="true" prefHeight="300" prefWidth="600">
+            <TextArea fx:id="logArea" editable="false" wrapText="true" style="-fx-font-size: 14px;" />
+        </ScrollPane>
     </VBox>
+
 </VBox>

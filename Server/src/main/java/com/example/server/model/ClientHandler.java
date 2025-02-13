@@ -1,98 +1,161 @@
 package com.example.server.model;
 
+
+import com.example.server.controller.ServerController;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.Socket;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
-    private Email email;
+    private MailStorage mailStorage;
+    ServerController serverController;
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, MailStorage mailStorage, ServerController serverController) {
         this.clientSocket = socket;
+        this.mailStorage = mailStorage;
+        this.serverController = serverController;
     }
 
     @Override
     public void run() {
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
-            String message = reader.readLine(); // Legge il messaggio
-            //switch(per le azioni)
-            if (message != null && message.startsWith("Email:")) {
-                handleEmail(message);
-            } else {
-                System.out.println("Messaggio non valido.");
+            String message = reader.readLine();
+            if (message != null) {
+                serverController.appendLog("Richiesta del client presa in carico: " + message);
+                JSONObject request = new JSONObject(message);
+                JSONObject response = handleRequest(request);
+                writer.println((response.toString()));
             }
         } catch (IOException e) {
-            System.out.println("Errore nella comunicazione con il client: " + e.getMessage());
+            System.err.println("Errore nel gestire la richiesta del client: " + e.getMessage());
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                System.out.println("Errore nella chiusura del socket.");
+                System.err.println("Errore nel chiudere il socket del client: " + e.getMessage());
             }
         }
     }
-    private void handleEmail(String message) throws IOException {
+
+    public JSONObject handleRequest (JSONObject request) {
+        String operation = request.optString("operazione", "");
+        JSONObject response = new JSONObject();
+
+        switch(operation){
+            case "SEND_EMAIL":
+                response = handleSendEmail(request);
+                break;
+            case "GET_MAILBOX":
+                response = handleGetMailbox(request);
+                break;
+            case "DELETE_EMAIL":
+                response = handleDeleteEmail(request);
+                break;
+                case "PING":
+                response.put("risultato", "PONG");
+                serverController.appendLog("PONG");
+                break;
+            case "LOGIN":
+                response = handleLogin(request);
+                break;
+            default:
+                response.put("risultato", "ERRORE");
+                response.put("messaggio", "Operazione non valida");
+                serverController.appendLog("ERRORE: Operazione non valida");
+        }
+        return response;
+    }
+
+    private JSONObject handleSendEmail(JSONObject request) {
         try {
-            email = ToEmail(message);
-            if (email == null) {
-                throw new IOException("Errore nel parsing dell'email.");
+            String sender = request.getString("mittente");
+            List<String> recipients = request.getJSONArray("destinatari").toList().stream().map(Object::toString).toList();
+            String subject = request.getString("oggetto");
+            String body = request.getString("corpo");
+            String date = request.getString("data");
+
+            Email email = new Email(sender, recipients, subject, body, date);
+
+            for (String recipient : recipients){
+                MailBox mailbox = mailStorage.loadMailBox(recipient);
+                if (mailbox == null){
+                    serverController.appendLog("Mailbox non trovata per: " + recipient);
+                    return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Mailbox non trovata");
+                }
+                mailbox.sendEmail(email);
+                mailStorage.saveMailBox(mailbox);
             }
-            System.out.println("Messaggio email ricevuto: " + email);
-            switch (email.getCause()) {
-                case "Inoltro" -> inviaMail(email);
-                case "Cancella"->cancellaMail(email);
-                case "Login" -> loginClient(email);
-                case "Invio"->invioEmail(email);
-                case "InoltroTutti"-> inoltroTutti(email);
-                default -> throw new IOException("Errore nella causa dell'email.");
-            }
-        } catch (IOException e) {
-            throw new IOException("Conversione fallita.");
+            serverController.appendLog("Email inviata da: " + sender + " a: " + recipients);
+            return new JSONObject().put("risultato", "OK");
+        } catch (Exception e) {
+            serverController.appendLog("ERRORE in handleSendEmail");
+            return new JSONObject().put("risultato", "ERRORE").put("messaggio", e.getMessage());
         }
     }
 
-    private Email ToEmail(String message) {
-        if (message == null || !message.startsWith("Email:")) {
-            return null;
+    private JSONObject handleGetMailbox(JSONObject request) {
+        try {
+            String account = request.getString("mittente");
+            String lastEmailId = request.optString("lastEmailId", "");
+            MailBox mailbox = mailStorage.loadMailBox(account);
+
+            if (mailbox == null) {
+                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Mailbox non trovata");
+            }
+
+            List<Email> newEmails = mailbox.getEmails().stream()
+                    .filter(email -> email.getId().compareTo(lastEmailId) > 0)
+                    .toList();
+
+            serverController.appendLog("Richiesta MailBox da: " + account);
+            return new JSONObject().put("risultato", "OK").put("emails", newEmails);
+        } catch (Exception e) {
+            serverController.appendLog("ERRORE in handleGetMailbox");
+            return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Richiesta non valida");
         }
+    }
 
-        String emailAddress = null, subject = null, body = null, cause = null;
-        List<String> recipients = new ArrayList<>();
+    private JSONObject handleDeleteEmail(JSONObject request) {
+        try {
+            String account = request.getString("mittente");
+            String emailId = request.getString("id");
 
-        // Rimozione "Email:" iniziale
-        message = message.substring(6).trim();
-        String[] parts = message.split(",");
-        for (String part : parts) {
-            if (part.startsWith("Recipiens[")) {
-                String recipientList = part.substring(10, part.length() - 1).trim(); // Rimuove 'Recipiens[' e ']'
-                recipients = Arrays.asList(recipientList.split(",")); // Divide i destinatari
-            } else if (part.startsWith("Subject:")) {
-                subject = part.substring(8).trim();
-            } else if (part.startsWith("Body:")) {
-                body = part.substring(5).trim();
-            } else if (part.startsWith("cause:")) {
-                cause = part.substring(6).trim();
+            MailBox mailbox = mailStorage.loadMailBox(account);
+            if (mailbox == null || !mailbox.removeEmail(emailId)) {
+                serverController.appendLog("ERRORE in handleDeleteEmail: email non trovata");
+                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Email non trovata");
+            }
+
+            mailStorage.saveMailBox(mailbox);
+            serverController.appendLog("Email eliminata da: " + account);
+            return new JSONObject().put("risultato", "OK");
+        } catch (Exception e) {
+            serverController.appendLog("ERRORE in handleDeleteEmail: richiesta non valida");
+            return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Richiesta non valida");
+        }
+    }
+
+    private JSONObject handleLogin(JSONObject request) {
+        try {
+            String email = request.getString("email");
+            if (mailStorage.isRegisteredEmail(email)) {
+                serverController.appendLog("Login effettuato con: " + email);
+                return new JSONObject().put("risultato", "OK");
             } else {
-                emailAddress = part.trim(); // Prima parte è l'email mittente
+                serverController.appendLog("ERRORE in handleLogin: email non registrata");
+                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Email non registrata");
             }
+        } catch (Exception e) {
+            serverController.appendLog("ERRORE in handleLogin");
+            return new JSONObject().put("risultato", "ERRORE").put("messaggio", e.getMessage());
         }
-
-        if (emailAddress == null || recipients.isEmpty() || subject == null || body == null || cause == null) {
-            return null;
-        }
-
-        return new Email(emailAddress, recipients, subject, body,java.time.LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) ,cause);
     }
 
-    private boolean loginClient(Email email) {
 
-    }
 }

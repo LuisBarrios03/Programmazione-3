@@ -58,5 +58,9 @@ public class MailStorage {
             lock.readLock().unlock();
         }
     }
+
+    public boolean isRegisteredEmail(String email) {
+        return new File(directory, email + ".bin").exists();
+    }
 }
 

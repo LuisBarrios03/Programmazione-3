@@ -33,7 +33,7 @@ public class MailBox implements Serializable {
     }
 
     //Aggiunge una email alla MailBox
-    public synchronized void addEmail(Email email) {
+    public synchronized void sendEmail(Email email) {
             emails.add(email);
     }
 
@@ -43,33 +43,10 @@ public class MailBox implements Serializable {
             return emails.removeIf(email -> email.getId().equals(id));
     }
 
-    //Restituisce una email dato il suo id
-    public Email getEmail(String id) {
-        for (Email email : emails) {
-            if (email.getId().equals(id)) {
-                return email;
-            }
-        }
-        return null;
-    }
 
-    //Inoltra/invia la mail a tutti i destinatari
-    public synchronized boolean FowardEmail(String id, List<MailBox> recipients) {
-        Email email = getEmail(id);
-        if (email == null) {
-            return false;
-        } else {
-            for (MailBox recipient : recipients) {
-                try {
-                    recipient.addEmail(email);
-                } catch (Exception e) {
-                    System.err.println("Errore durante l'inoltro della email con id: " + id);
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-            return true;
-        }
+    //Restituisce tutte le email presenti nella MailBox
+    public List<Email> getEmails() {
+        return emails;
     }
 }
 

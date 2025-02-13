@@ -2,24 +2,19 @@ package com.example.server.controller;
 
 import com.example.server.model.MailStorage;
 import com.example.server.model.Server;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 
-import com.example.server.model.Email;
-import com.example.server.model.MailBox;
-import javafx.scene.control.cell.PropertyValueFactory;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
 public class ServerController {
-    private final Map<String, MailBox> mailboxes = new HashMap<>();
-    private boolean serverRunning = false;
+   private Server server;
+   private MailStorage mailStorage;
+   private boolean running = false;
 
     @FXML
     private Label serverStatusLabel;
@@ -27,53 +22,49 @@ public class ServerController {
     private Button startServerButton;
     @FXML
     private Button stopServerButton;
-    @FXML
-    private TableView<Email> messagesTable;
-    @FXML
-    private TableColumn<Email, String> idColumn;
 
-    public ServerController() {
-        /*mailboxes.put("alessio@notamail.com", new MailBox("alessio@notamail.com"));
-        mailboxes.put("luis@notamail.com", new MailBox("luis@notamail.com"));
-        mailboxes.put("gigi@notamail.com", new MailBox("gigi@notamail.com"));*/
-    }
     @FXML
-    public void init(){
-        messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    private TextArea logArea;
+
+
+    public ServerController(){
+        mailStorage = new MailStorage(new File("data"));
     }
 
     @FXML
-    private void startServer(ActionEvent e) {
+    public void startServer(ActionEvent e){
+        if (!running){
+            server = new Server(5000, 3, mailStorage, this);
+            server.start();
+            running = true;
 
-        messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        if (!serverRunning) {
-            serverRunning = true;
-            Server.startServer(5000);
-            serverStatusLabel.setText("Running");
-            serverStatusLabel.setStyle("-fx-text-fill: green;");
+            serverStatusLabel.setText("Server Online");
+            serverStatusLabel.setStyle("-fx-text-fill: green");
             startServerButton.setDisable(true);
             stopServerButton.setDisable(false);
-            idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            ObservableList<Email> observableEmails = FXCollections.observableArrayList(mb.getAllMails());
-            messagesTable.setItems(observableEmails);
-            messagesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
     }
 
     @FXML
     public void stopServer() {
-        if (serverRunning) {
-            serverRunning = false;
-            Server.stopServer();
+        if (running && server != null) {
+            server.stop();
+            running = false;
 
-            serverStatusLabel.setText("Stopped");
+            serverStatusLabel.setText("Server Offline");
             serverStatusLabel.setStyle("-fx-text-fill: red;");
             startServerButton.setDisable(false);
             stopServerButton.setDisable(true);
-            messagesTable.getItems().clear();
-        } else {
-            Server.stopServer();
         }
+    }
+
+    public void appendLog(String message) {
+        Platform.runLater(() -> {
+            logArea.appendText(message + "\n");
+        });
+    }
+
+    public boolean isServerRunning() {
+        return running;
     }
 }

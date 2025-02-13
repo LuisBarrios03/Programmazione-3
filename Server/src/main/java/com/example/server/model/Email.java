@@ -1,10 +1,11 @@
 package com.example.server.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Email {
+public class Email implements Serializable {
 
     private final String id;
     private final String sender;
@@ -49,7 +50,7 @@ public class Email {
 
     @Override
     public String toString() {
-        return "ID: " + id + "\nFrom: " + sender + "\nTo: " + recipients + "\nSubject: " + subject + "\nDate: " + date + "\n\n" + body;
+        return "ID: " + id + "\nMittente: " + sender + "\nDestinatario: " + recipients + "\nOggetto: " + subject + "\nData: " + date + "\n\nCorpo: " + body;
     }
 
     @Override
