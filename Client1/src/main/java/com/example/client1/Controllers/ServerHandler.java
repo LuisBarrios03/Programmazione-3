@@ -46,7 +46,7 @@ public class ServerHandler {
 
     public void receiveMessage(String responseString) {
         JSONObject response = new JSONObject(responseString);
-        if (response.getString("status").equals("success")) {
+        if (response.getString("status").equals("OK")) {
             System.out.println("Operazione completata con successo: " + response.getString("message"));
         } else {
             System.err.println("Errore durante l'operazione: " + response.getString("message"));
@@ -57,8 +57,8 @@ public class ServerHandler {
     public boolean tryConnection(){
         try {
             JSONObject data = new JSONObject().put("data", new JSONObject());
-            JSONObject response = sendCommand(data.put("action", "ping"));
-            return response.getString("status").equals("success");
+            JSONObject response = sendCommand(data.put("action", "PING"));
+            return response.getString("status").equals("OK");
         } catch (Exception e) {
            System.err.println("Errore nella connessione al server: " + e.getMessage());
               return false;

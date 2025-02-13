@@ -9,7 +9,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="pane_home" prefHeight="611.0" prefWidth="792.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.HomeController">
+<AnchorPane id="pane_home" prefHeight="611.0" prefWidth="792.0" style="-fx-background-color: #f7f9fc;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.MenuController">
     <children>
         <!-- Email List and Menu -->
         <AnchorPane fx:id="pane_email_list" layoutX="10.0" layoutY="6.0" prefHeight="94.0" prefWidth="774.0" style="-fx-background-color: #CCFFFF; -fx-border-radius: 10;">

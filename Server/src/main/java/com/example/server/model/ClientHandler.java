@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable {
     }
 
     public JSONObject handleRequest (JSONObject request) {
-        String operation = request.optString("operazione", "");
+        String operation = request.optString("action", "");
         JSONObject response = new JSONObject();
 
         switch(operation){
@@ -58,15 +58,15 @@ public class ClientHandler implements Runnable {
                 response = handleDeleteEmail(request);
                 break;
                 case "PING":
-                response.put("risultato", "PONG");
+                response.put("status", "PONG");
                 serverController.appendLog("PONG");
                 break;
             case "LOGIN":
                 response = handleLogin(request);
                 break;
             default:
-                response.put("risultato", "ERRORE");
-                response.put("messaggio", "Operazione non valida");
+                response.put("status", "ERRORE");
+                response.put("message", "Operazione non valida");
                 serverController.appendLog("ERRORE: Operazione non valida");
         }
         return response;
@@ -86,16 +86,16 @@ public class ClientHandler implements Runnable {
                 MailBox mailbox = mailStorage.loadMailBox(recipient);
                 if (mailbox == null){
                     serverController.appendLog("Mailbox non trovata per: " + recipient);
-                    return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Mailbox non trovata");
+                    return new JSONObject().put("status", "ERRORE").put("message", "Mailbox non trovata");
                 }
                 mailbox.sendEmail(email);
                 mailStorage.saveMailBox(mailbox);
             }
             serverController.appendLog("Email inviata da: " + sender + " a: " + recipients);
-            return new JSONObject().put("risultato", "OK");
+            return new JSONObject().put("status", "OK").put("message", "Operazione riuscita");
         } catch (Exception e) {
             serverController.appendLog("ERRORE in handleSendEmail");
-            return new JSONObject().put("risultato", "ERRORE").put("messaggio", e.getMessage());
+            return new JSONObject().put("status", "ERRORE").put("message", e.getMessage());
         }
     }
 
@@ -106,7 +106,7 @@ public class ClientHandler implements Runnable {
             MailBox mailbox = mailStorage.loadMailBox(account);
 
             if (mailbox == null) {
-                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Mailbox non trovata");
+                return new JSONObject().put("status", "ERRORE").put("message", "Mailbox non trovata");
             }
 
             List<Email> newEmails = mailbox.getEmails().stream()
@@ -114,10 +114,10 @@ public class ClientHandler implements Runnable {
                     .toList();
 
             serverController.appendLog("Richiesta MailBox da: " + account);
-            return new JSONObject().put("risultato", "OK").put("emails", newEmails);
+            return new JSONObject().put("status", "OK").put("emails", newEmails);
         } catch (Exception e) {
             serverController.appendLog("ERRORE in handleGetMailbox");
-            return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Richiesta non valida");
+            return new JSONObject().put("status", "ERRORE").put("message", "Richiesta non valida");
         }
     }
 
@@ -129,31 +129,33 @@ public class ClientHandler implements Runnable {
             MailBox mailbox = mailStorage.loadMailBox(account);
             if (mailbox == null || !mailbox.removeEmail(emailId)) {
                 serverController.appendLog("ERRORE in handleDeleteEmail: email non trovata");
-                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Email non trovata");
+                return new JSONObject().put("status", "ERRORE").put("message", "Email non trovata");
             }
 
             mailStorage.saveMailBox(mailbox);
             serverController.appendLog("Email eliminata da: " + account);
-            return new JSONObject().put("risultato", "OK");
+            return new JSONObject().put("status", "OK").put("message", "Operazione riuscita");
         } catch (Exception e) {
             serverController.appendLog("ERRORE in handleDeleteEmail: richiesta non valida");
-            return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Richiesta non valida");
+            return new JSONObject().put("status", "ERRORE").put("message", "Richiesta non valida");
         }
     }
 
     private JSONObject handleLogin(JSONObject request) {
         try {
-            String email = request.getString("email");
-            if (mailStorage.isRegisteredEmail(email)) {
-                serverController.appendLog("Login effettuato con: " + email);
-                return new JSONObject().put("risultato", "OK");
+            JSONObject data = request.getJSONObject("data");
+            JSONObject mailObject = data.getJSONObject("mail");
+            String sender = mailObject.getString("sender");
+            if (mailStorage.isRegisteredEmail(sender)) {
+                serverController.appendLog("Login effettuato con: " + sender);
+                return new JSONObject().put("status", "OK").put("message", "Operazione riuscita");
             } else {
-                serverController.appendLog("ERRORE in handleLogin: email non registrata");
-                return new JSONObject().put("risultato", "ERRORE").put("messaggio", "Email non registrata");
+                serverController.appendLog("ERRORE in handleLogin: sender non registrata");
+                return new JSONObject().put("status", "ERRORE").put("message", "Email non registrata");
             }
         } catch (Exception e) {
             serverController.appendLog("ERRORE in handleLogin");
-            return new JSONObject().put("risultato", "ERRORE").put("messaggio", e.getMessage());
+            return new JSONObject().put("status", "ERRORE").put("message", e.getMessage());
         }
     }
 

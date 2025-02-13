@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -40,13 +41,14 @@ public class LoginController {
             Platform.runLater(() -> email_incorrect.setVisible(true));
         } else {
             JSONObject data = new JSONObject()
-                    .put("action", "login")
+                    .put("action", "LOGIN")
                     .put("data", new JSONObject().put("mail", new JSONObject().put("sender", account)));
             loginThread = new Thread(() -> {
                 try {
                     JSONObject response = serverHandler.sendCommand(data);
-                    if (response.getString("status").equals("success")) {
+                    if (response.getString("status").equals("OK")) {
                         Platform.runLater(this::loadMenu);
+                        //loadMenu();
                     } else {
                         Platform.runLater(() -> {
                             email_incorrect.setText("Login fallito: " + response.getString("message"));
@@ -66,6 +68,7 @@ public class LoginController {
 
     private void loadMenu() {
         try {
+            System.out.println(getClass().getResource("/com/example/client1/menu.fxml"));
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) btn_invia.getScene().getWindow();
@@ -76,6 +79,18 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
+    /*private void loadMenu() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
+        Parent root = loader.load();
+
+        Platform.runLater(() -> { // ✅ Sposta l'aggiornamento UI nel JavaFX Application Thread
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Menu");
+            stage.show();
+        });
+    }*/
 
     private boolean isValid(String account) {
         return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
