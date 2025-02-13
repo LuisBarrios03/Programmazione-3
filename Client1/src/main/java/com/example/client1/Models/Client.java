@@ -1,8 +1,6 @@
 package com.example.client1.Models;
 
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -15,6 +13,7 @@ public class Client {
     SimpleStringProperty date;
     SimpleStringProperty connection;
     ListProperty<Email> mailList;
+    BooleanProperty selected;
 
     public Client() {
         this.account = new SimpleStringProperty();
@@ -25,6 +24,7 @@ public class Client {
         this.date = new SimpleStringProperty();
         this.connection = new SimpleStringProperty();
         this.mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
+        this.selected= new SimpleBooleanProperty(false);
     }
 
     public String getAccount() {
@@ -121,6 +121,18 @@ public class Client {
 
     public ObservableList<Email> getMailList() {
         return mailList.get();
+    }
+
+    public boolean isSelected() {
+        return selected.get();
+    }
+
+    public BooleanProperty selectedProperty() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
     }
 }
 

@@ -20,7 +20,6 @@ public class Application extends javafx.application.Application {
             if (location == null) {
                 throw new IllegalStateException("Il file FXML non è stato trovato, controlla il percorso");
             }
-
             FXMLLoader fxmlLoader = new FXMLLoader(location);
             Scene scene = new Scene(fxmlLoader.load(), 300, 251);
             stage.setTitle("Login");

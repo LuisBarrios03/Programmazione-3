@@ -48,7 +48,6 @@ public class LoginController {
                     JSONObject response = serverHandler.sendCommand(data);
                     if (response.getString("status").equals("OK")) {
                         Platform.runLater(this::loadMenu);
-                        //loadMenu();
                     } else {
                         Platform.runLater(() -> {
                             email_incorrect.setText("Login fallito: " + response.getString("message"));
@@ -68,7 +67,6 @@ public class LoginController {
 
     private void loadMenu() {
         try {
-            System.out.println(getClass().getResource("/com/example/client1/menu.fxml"));
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) btn_invia.getScene().getWindow();
@@ -80,17 +78,6 @@ public class LoginController {
         }
     }
 
-    /*private void loadMenu() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
-        Parent root = loader.load();
-
-        Platform.runLater(() -> { // ✅ Sposta l'aggiornamento UI nel JavaFX Application Thread
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Menu");
-            stage.show();
-        });
-    }*/
 
     private boolean isValid(String account) {
         return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
