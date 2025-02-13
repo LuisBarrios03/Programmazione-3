@@ -22,7 +22,6 @@ public class ServerController {
     private Button startServerButton;
     @FXML
     private Button stopServerButton;
-
     @FXML
     private TextArea logArea;
 

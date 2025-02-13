@@ -7,14 +7,14 @@ import java.util.UUID;
 
 public class Email implements Serializable {
 
-    private final String id;
-    private final String sender;
-    private final List<String> recipients;
-    private final String subject;
-    private final String body;
-    private final String date;
+    private  String id;
+    private  String sender;
+    private  List<String> recipients;
+    private  String subject;
+    private  String body;
+    private  String date;
 
-    public Email(String sender, List<String> recipients, String subject, String body, String date) {
+    public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
         this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = List.copyOf(recipients);
@@ -23,7 +23,7 @@ public class Email implements Serializable {
         this.date = date;
     }
 
-    public String getId() {
+    public String getid() {
         return id;
     }
 
@@ -45,6 +45,30 @@ public class Email implements Serializable {
 
     public String getDate() {
         return date;
+    }
+
+    public void setId(String account){
+        this.id = account;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setRecipients(List<String> recipients) {
+        this.recipients = recipients;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
 

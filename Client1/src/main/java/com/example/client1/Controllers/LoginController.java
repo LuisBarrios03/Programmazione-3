@@ -1,32 +1,83 @@
 package com.example.client1.Controllers;
 
-import com.example.client1.Models.ConnectionClient;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import com.example.client1.Models.Client;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import com.example.client1.Application;
+import javafx.stage.Stage;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class LoginController {
+    private Client client;
+    private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
+    private Thread loginThread;
 
     @FXML
-    public void btn_click_change(ActionEvent event) {
+    private Label email_incorrect;
+
+    @FXML
+    private Button btn_invia;
+
+    @FXML
+    private TextField txt_email;
+
+    // Questo metodo viene richiamato quando il pulsante viene cliccato
+    @FXML
+    public void init(ActionEvent event) {
+        String account = txt_email.getText();
+        client = Application.getClient();
+        client.setAccount(account);
+
+        if (!isValid(account)) {
+            Platform.runLater(() -> email_incorrect.setVisible(true));
+        } else {
+            JSONObject data = new JSONObject()
+                    .put("action", "login")
+                    .put("data", new JSONObject().put("mail", new JSONObject().put("sender", account)));
+            loginThread = new Thread(() -> {
+                try {
+                    JSONObject response = serverHandler.sendCommand(data);
+                    if (response.getString("status").equals("success")) {
+                        Platform.runLater(this::loadMenu);
+                    } else {
+                        Platform.runLater(() -> {
+                            email_incorrect.setText("Login fallito: " + response.getString("message"));
+                            email_incorrect.setVisible(true);
+                        });
+                    }
+                } catch (IOException ex) {
+                    Platform.runLater(() -> {
+                        email_incorrect.setText("Errore di connessione con il server");
+                        email_incorrect.setVisible(true);
+                    });
+                }
+            });
+            loginThread.start();
+        }
+    }
+
+    private void loadMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client1/home.fxml"));
-            Parent root = loader.load();
-
-            HomeController homeController = loader.getController();
-            Thread clientThread = new Thread(new ConnectionClient(homeController));
-            clientThread.start();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = (Stage) btn_invia.getScene().getWindow();
+            stage.setTitle("Menu");
+            stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            System.err.println("Errore nel cambio scena: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private boolean isValid(String account) {
+        return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
     }
 }
