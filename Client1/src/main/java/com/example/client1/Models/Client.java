@@ -115,8 +115,8 @@ public class Client {
         return mailList;
     }
 
-    public void setMailList(ListProperty<Email> mailList) {
-        this.mailList = mailList;
+    public void setMailList(ObservableList<Email> mailList) {
+        this.mailList.set(mailList);
     }
 
     public ObservableList<Email> getMailList() {
@@ -134,5 +134,6 @@ public class Client {
     public void setSelected(boolean selected) {
         this.selected.set(selected);
     }
+
 }
 

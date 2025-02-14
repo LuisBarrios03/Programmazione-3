@@ -4,13 +4,11 @@ import com.example.client1.Models.Email;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,83 +22,85 @@ public class ServerHandler {
     }
 
     public JSONObject sendCommand(JSONObject data) throws IOException {
-        try (
-                Socket socket = new Socket(serverAddress, serverPort);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        ) {
-            System.out.println("Socket in uso: " + socket);
+        try (Socket socket = new Socket(serverAddress, serverPort);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
             out.println(data);
-
             String response = in.readLine();
-            receiveMessage(response);
-
-            if (response != null) {
-                socket.close();
-                return new JSONObject(response);
-            } else {
-                throw new IOException("No response from server.");
-            }
+            return (response != null) ? receiveMessage(response)
+                    : new JSONObject().put("status", "ERRORE").put("message", "Nessuna risposta dal server");
         }
     }
 
-    public void receiveMessage(String responseString) {
+    public JSONObject receiveMessage(String responseString) {
         JSONObject response = new JSONObject(responseString);
-        if (response.getString("status").equals("OK")) {
-            System.out.println("Operazione completata con successo: " + response.getString("message"));
+        if (response.optString("status").equals("OK")) {
+            System.out.println("Operazione riuscita: " + response.optString("message"));
         } else {
-            System.err.println("Errore durante l'operazione: " + response.getString("message"));
+            System.err.println("Errore: " + response.optString("message"));
+        }
+        return response;
+    }
+
+    public void serializeToJson(String filePath, JSONObject data) throws IOException {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write(data.toString(4));
         }
     }
 
-
-    public boolean tryConnection(){
-        try {
-            JSONObject data = new JSONObject().put("data", new JSONObject());
-            JSONObject response = sendCommand(data.put("action", "PING"));
-            return response.getString("status").equals("OK");
-        } catch (Exception e) {
-           System.err.println("Errore nella connessione al server: " + e.getMessage());
-              return false;
-        }
+    public JSONObject deserializeFromJson(String filePath) throws IOException {
+        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+        return new JSONObject(content);
     }
 
-    public List <Email> createInbox (JSONObject data){
-        JSONArray mailList = data.getJSONArray("MailList");
+    public List<Email> createInbox(JSONObject data) {
+        JSONArray mailList = data.optJSONArray("MailList");
         List<Email> mailListConverted = new ArrayList<>();
-        for (int i = 0; i < mailList.length(); i++){
+        for (int i = 0; i < mailList.length(); i++) {
             JSONObject mail = mailList.getJSONObject(i);
-
-            List<String> recipients = new ArrayList<>();
-            if (!mail.isNull("recipients")){
-                JSONArray recipientsArray = mail.getJSONArray("recipients");
-                for (int j = 0; j < recipientsArray.length(); j++){
-                    recipients.add(recipientsArray.getString(j));
-                }
-            }
-            Email email = new Email (
+            List<String> recipients = mail.optJSONArray("recipients").toList().stream().map(Object::toString).toList();
+            Email email = new Email(
                     mail.getString("id"),
                     mail.getString("sender"),
                     recipients,
                     mail.getString("subject"),
                     mail.getString("body"),
-                    LocalDateTime.parse(mail.getString("timestamp"), DateTimeFormatter.ISO_DATE_TIME).toString()
+                    mail.optString("timestamp", LocalDateTime.now().toString())
             );
             mailListConverted.add(email);
         }
         return mailListConverted;
     }
 
-    public String getLastId(List<Email> emails){
-        int lastId = 0;
-        for (Email email : emails){
-            int id = Integer.parseInt(email.getid());
-            if (id > lastId){
-                lastId = id;
-            }
-        }
+    public String getLastId(List<Email> emails) {
+        return emails.stream()
+                .map(Email::getId)
+                .filter(id -> id.matches("\\d+")) // Filtra solo ID numerici
+                .mapToInt(Integer::parseInt)
+                .max()
+                .stream()
+                .mapToObj(String::valueOf)
+                .findFirst()
+                .orElse("0");
+    }
 
-        return "" + lastId;
+    /**
+     * Metodo per verificare la connessione al server.
+     *
+     * @return JSONObject contenente lo stato della connessione e un messaggio.
+     */
+    public JSONObject tryConnection() {
+        JSONObject response = new JSONObject();
+        try (Socket socket = new Socket(serverAddress, serverPort)) {
+            // Connessione riuscita
+            response.put("status", "OK");
+            response.put("message", "Connesso al server con successo.");
+        } catch (IOException e) {
+            // Errore durante la connessione
+            response.put("status", "ERRORE");
+            response.put("message", "Impossibile connettersi al server: " + e.getMessage());
+        }
+        return response;
     }
 }
-
