@@ -1,34 +1,33 @@
 package com.example.server.model;
 
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.*;
 import com.example.server.controller.ServerController;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Server {
     private int port;
-    private boolean running;
-    private final MailStorage mailStorage;
-    private final ExecutorService threadPool;
-    private Thread serverThread;
+    private boolean running = false;
     private ServerSocket serverSocket;
-    ServerController serverController;
+    private Thread serverThread;
+    private MailStorage mailStorage;
+    private ServerController serverController;
+    private ExecutorService threadPool;
 
-    public Server(int port, int maxClients, MailStorage mailStorage, ServerController serverController) {
+    public Server(int port, File storageDirectory, ServerController controller, int threadPoolSize) {
         this.port = port;
-        this.mailStorage = mailStorage;
-        this.running = true;
-        this.threadPool = Executors.newFixedThreadPool(maxClients);
-        this.serverController = serverController;
+        this.mailStorage = new MailStorage(storageDirectory);
+        this.serverController = controller;
+        this.threadPool = Executors.newCachedThreadPool();
     }
 
+    // Metodo per avviare il server
     public void start() {
         serverThread = new Thread(() -> {
             try {
+                // Crea i file .bin per gli account se non esistono all'avvio
+                mailStorage.createMailBoxesIfNotExist();
+
                 serverSocket = new ServerSocket(port);
                 System.out.println("Server Online sulla porta: " + port);
                 serverController.appendLog("Server Online sulla porta: " + port);
@@ -49,27 +48,33 @@ public class Server {
         serverThread.start();
     }
 
+    // Metodo per fermare il server
     public void stop() {
         running = false;
-        try {
-            if (serverSocket != null && !serverSocket.isClosed()) {
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
                 serverSocket.close();
+                threadPool.shutdown();
+                System.out.println("Server fermato.");
+            } catch (IOException e) {
+                System.err.println("Errore nel fermare il server: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.err.println("Errore nella chiusura del ServerSocket: " + e.getMessage());
         }
-        if (serverThread != null) {
-            serverThread.interrupt();
-        }
-        threadPool.shutdownNow();
-        try {
-            if (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
-                System.err.println("Il thread pool non si è fermato");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        System.out.println("Server fermato.");
+    }
+
+    // Metodo per iniziare a ricevere nuove connessioni
+    public void startReceiving() {
+        running = true;
+        start();
+    }
+
+    // Metodo per terminare il server
+    public void stopReceiving() {
+        stop();
+    }
+
+    // Verifica se una mail è registrata
+    public boolean isEmailRegistered(String email) {
+        return mailStorage.isRegisteredEmail(email);
     }
 }
-

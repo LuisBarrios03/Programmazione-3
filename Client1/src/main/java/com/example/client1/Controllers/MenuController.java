@@ -99,7 +99,7 @@ public class MenuController {
         inbox.setItems(client.mailListProperty());
 
         scheduleConnectionStatusUpdates();
-        //updateInbox();
+        updateInbox();
     }
 
     @FXML
@@ -115,28 +115,43 @@ public class MenuController {
         Thread updateThread = new Thread(() -> {
             try {
                 JSONObject response = serverHandler.sendCommand(data);
+
+                // Verifica se la risposta ha un campo "status" che indica successo
                 if (response.getString("status").equals("OK")) {
-                    JSONArray mailList = response.getJSONArray("data");
-                    List<Email> emails = new ArrayList<>();
-                    for (int i = 0; i < mailList.length(); i++) {
-                        JSONObject mail = mailList.getJSONObject(i);
-                        emails.add(new Email(
-                                mail.getString("id"),
-                                mail.getString("sender"),
-                                mail.getJSONArray("destinatari").toList().stream().map(Object::toString).toList(),
-                                mail.getString("subject"),
-                                mail.getString("body"),
-                                mail.getString("date")
-                        ));
+                    // Verifica se il campo "data" è presente e non vuoto
+                    if (response.has("data") && !response.isNull("data") && response.getJSONArray("data").length() > 0) {
+                        JSONArray mailList = response.getJSONArray("data");
+                        List<Email> emails = new ArrayList<>();
+                        for (int i = 0; i < mailList.length(); i++) {
+                            JSONObject mail = mailList.getJSONObject(i);
+                            emails.add(new Email(
+                                    mail.getString("id"),
+                                    mail.getString("sender"),
+                                    mail.getJSONArray("destinatari").toList().stream().map(Object::toString).toList(),
+                                    mail.getString("subject"),
+                                    mail.getString("body"),
+                                    mail.getString("date")
+                            ));
+                        }
+                        // Aggiorna l'interfaccia utente con le email ricevute
+                        Platform.runLater(() -> {
+                            client.setMailList(FXCollections.observableArrayList(emails));
+                            inbox.setItems(client.mailListProperty());
+                        });
+                    } else {
+                        // Se "data" non è presente o è vuoto, imposta la lista vuota
+                        Platform.runLater(() -> {
+                            client.setMailList(FXCollections.observableArrayList());
+                            inbox.setItems(client.mailListProperty());
+                            lbl_error.setText("La casella di posta è vuota.");
+                        });
                     }
-                    Platform.runLater(() -> {
-                        client.setMailList(FXCollections.observableArrayList(emails));
-                        inbox.setItems(client.mailListProperty());
-                    });
                 } else {
+                    // Se la risposta ha uno status diverso da "OK", mostra un errore
                     Platform.runLater(() -> lbl_error.setText("Errore durante l'aggiornamento della casella di posta: " + response.getString("message")));
                 }
             } catch (IOException ex) {
+                // Gestisci errori di connessione con il server
                 Platform.runLater(() -> lbl_error.setText("Errore di connessione con il server"));
             }
         });

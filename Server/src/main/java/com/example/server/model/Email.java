@@ -1,13 +1,13 @@
 package com.example.server.model;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Email implements Serializable {
-
     private String id;
     private String sender;
     private List<String> recipients;
@@ -50,27 +50,15 @@ public class Email implements Serializable {
                 Objects.equals(date, email.date);
     }
 
-    // Converti l'email in JSONObject (Serializzazione)
-    public JSONObject toJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", id);
-        json.put("sender", sender);
-        json.put("recipients", recipients);
-        json.put("subject", subject);
-        json.put("body", body);
-        json.put("date", date);
-        return json;
+    // Converti l'email in JsonObject (Serializzazione) usando Gson
+    public JsonObject toJson() {
+        Gson gson = new Gson();
+        return gson.toJsonTree(this).getAsJsonObject();
     }
 
-    // Crea un'istanza di Email da un JSONObject (Deserializzazione)
-    public static Email fromJson(JSONObject emailJson) {
-        return new Email(
-                emailJson.getString("id"),
-                emailJson.getString("sender"),
-                emailJson.getJSONArray("recipients").toList().stream().map(Object::toString).toList(),
-                emailJson.getString("subject"),
-                emailJson.getString("body"),
-                emailJson.getString("date")
-        );
+    // Crea un'istanza di Email da un JsonObject (Deserializzazione) usando Gson
+    public static Email fromJson(JsonObject emailJson) {
+        Gson gson = new Gson();
+        return gson.fromJson(emailJson, Email.class);
     }
 }

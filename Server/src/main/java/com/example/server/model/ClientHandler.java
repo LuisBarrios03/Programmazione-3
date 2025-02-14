@@ -2,10 +2,10 @@ package com.example.server.model;
 
 import com.example.server.controller.ServerController;
 import org.json.JSONObject;
+import com.google.gson.Gson;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
@@ -54,12 +54,13 @@ public class ClientHandler implements Runnable {
 
     private JSONObject handleSendEmail(JSONObject request) {
         try {
-            Email email = Email.fromJson(request.getJSONObject("email"));
+            Gson gson = new Gson();
+            Email email = gson.fromJson(request.getJSONObject("email").toString(), Email.class);
             for (String recipient : email.getRecipients()) {
-                File mailboxFile = new File(recipient + ".json");
-                MailBox mailbox = mailboxFile.exists() ? MailBox.deserializeFromJson(mailboxFile) : new MailBox(recipient);
+                File mailboxFile = new File("data", recipient + ".bin");
+                MailBox mailbox = mailboxFile.exists() ? MailBox.deserialize(mailboxFile) : new MailBox(recipient);
                 mailbox.sendEmail(email);
-                mailbox.serializeToJson(mailboxFile);
+                mailbox.serialize(mailboxFile);
             }
             serverController.appendLog("Email inviata da: " + email.getSender());
             return new JSONObject().put("status", "OK");
@@ -71,29 +72,36 @@ public class ClientHandler implements Runnable {
 
     private JSONObject handleGetMailbox(JSONObject request) {
         try {
-            String account = request.getString("mittente");
-            File mailboxFile = new File(account + ".json");
-            if (!mailboxFile.exists()) {
+            String sender = request.getJSONObject("data").getJSONObject("mail").getString("sender");
+            File mailboxFile = new File("data", sender + ".bin");
+            if (!mailStorage.isRegisteredEmail(sender)) {
                 return new JSONObject().put("status", "ERRORE").put("message", "Mailbox non trovata");
             }
-            MailBox mailbox = MailBox.deserializeFromJson(mailboxFile);
-            return new JSONObject().put("status", "OK").put("emails", mailbox.getEmails().stream().map(Email::toJson).toList());
+            MailBox mailbox = mailStorage.loadMailBox(sender);  // Usa il metodo modificato per caricare la mailbox
+            if (mailbox == null) {
+                return new JSONObject().put("status", "ERRORE").put("message", "Errore nel recupero della mailbox");
+            }
+            Gson gson = new Gson();
+            return new JSONObject().put("status", "OK")
+                    .put("emails", gson.toJson(mailbox.getEmails()));
         } catch (Exception e) {
+            e.printStackTrace();
             return new JSONObject().put("status", "ERRORE").put("message", "Errore durante il recupero della mailbox");
         }
     }
+
 
     private JSONObject handleDeleteEmail(JSONObject request) {
         try {
             String account = request.getString("mittente");
             String emailId = request.getString("id");
-            File mailboxFile = new File(account + ".json");
+            File mailboxFile = new File("data", account + ".bin");
             if (!mailboxFile.exists()) {
                 return new JSONObject().put("status", "ERRORE").put("message", "Mailbox non trovata");
             }
-            MailBox mailbox = MailBox.deserializeFromJson(mailboxFile);
+            MailBox mailbox = MailBox.deserialize(mailboxFile);
             if (mailbox.removeEmail(emailId)) {
-                mailbox.serializeToJson(mailboxFile);
+                mailbox.serialize(mailboxFile);
                 return new JSONObject().put("status", "OK").put("message", "Email eliminata");
             } else {
                 return new JSONObject().put("status", "ERRORE").put("message", "Email non trovata");
