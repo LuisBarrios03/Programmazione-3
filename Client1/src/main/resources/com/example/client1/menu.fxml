@@ -19,7 +19,7 @@
                 <Button fx:id="btn_aggiornamailbox" onAction="#manualRefresh" layoutX="620.0" layoutY="15.0" text="Aggiorna" />
                 <Label fx:id="lbl_connessione" layoutX="10.0" layoutY="61.0" text="Stato Connessione: Online" />
                 <Button fx:id="btn_cancellamail" layoutX="485.0" layoutY="15.0" text="Cancella Selezionate" />
-                <Button fx:id="btn_nuovamail" layoutX="393.0" layoutY="15.0" text="Nuova Email" />
+                <Button fx:id="btn_nuovamail" layoutX="393.0" layoutY="15.0" text="Nuova Email" onAction="#newEmail" />
                 <Label fx:id="lbl_error" layoutX="616.0" layoutY="70.0" text="Errore Connessione" textFill="RED" visible="false" />
             </children>
         </AnchorPane>

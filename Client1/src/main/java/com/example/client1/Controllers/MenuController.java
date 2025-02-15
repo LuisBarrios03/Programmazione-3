@@ -7,9 +7,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -112,7 +115,7 @@ public class MenuController {
                 .put("action", "GET_MAILBOX")
                 .put("data", new JSONObject().put("mail", new JSONObject().put("sender", client.getAccount())));
 
-        Thread updateThread = new Thread(() -> {
+            Thread updateThread = new Thread(() -> {
             try {
                 JSONObject response = serverHandler.sendCommand(data);
 
@@ -179,6 +182,19 @@ public class MenuController {
         } else {
             client.setConnection("OFF");
             lbl_connessione.setText("Stato Connessione: Offline");
+        }
+    }
+
+    public void newEmail(ActionEvent actionEvent) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = (Stage) btn_nuovamail.getScene().getWindow();
+            stage.setTitle("Menu");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 public class Client {
     SimpleStringProperty account;
     SimpleStringProperty sender;
+    SimpleStringProperty recipient;
     SimpleStringProperty recipients;
     SimpleStringProperty subject;
     SimpleStringProperty body;
@@ -18,6 +19,7 @@ public class Client {
     public Client() {
         this.account = new SimpleStringProperty();
         this.sender = new SimpleStringProperty();
+        this.recipient = new SimpleStringProperty();
         this.recipients = new SimpleStringProperty();
         this.subject = new SimpleStringProperty();
         this.body = new SimpleStringProperty();
@@ -53,6 +55,18 @@ public class Client {
 
     public String getRecipients() {
         return recipients.get();
+    }
+
+    public String getRecipient() {
+        return recipient.get();
+    }
+
+    public SimpleStringProperty recipientProperty() {
+        return recipient;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient.set(recipient);
     }
 
     public SimpleStringProperty recipientsProperty() {

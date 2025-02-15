@@ -1,6 +1,7 @@
 package com.example.server.model;
 
 import com.example.server.controller.ServerController;
+import com.google.gson.JsonObject;
 import org.json.JSONObject;
 import com.google.gson.Gson;
 import java.io.*;
@@ -55,7 +56,7 @@ public class ClientHandler implements Runnable {
     private JSONObject handleSendEmail(JSONObject request) {
         try {
             Gson gson = new Gson();
-            Email email = gson.fromJson(request.getJSONObject("email").toString(), Email.class);
+            Email email = gson.fromJson(request.getJSONObject("data").getJSONObject("mail").toString(), Email.class);
             for (String recipient : email.getRecipients()) {
                 File mailboxFile = new File("data", recipient + ".bin");
                 MailBox mailbox = mailboxFile.exists() ? MailBox.deserialize(mailboxFile) : new MailBox(recipient);

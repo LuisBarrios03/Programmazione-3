@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="494.0" prefWidth="603.0" style="-fx-background-color: #CCFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="494.0" prefWidth="603.0" style="-fx-background-color: #CCFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client1.Controllers.SendMessageController">
 
     <!-- Campo per l'indirizzo del destinatario -->
     <TextField fx:id="recipientField" layoutX="10" layoutY="10" prefHeight="30" prefWidth="580" promptText="A" />
@@ -22,7 +22,8 @@
     <!-- Area per il corpo del messaggio -->
     <TextArea fx:id="messageBody" layoutX="10" layoutY="130" prefHeight="300" prefWidth="580.0" promptText="Scrivi il tuo messaggio qui..." />
 
-    <!-- Pulsante "Invia" -->
+    <!-- Pulsante "Invia" e "Indietro" -->
     <Button fx:id="sendButton" layoutX="498.0" layoutY="449.0" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Invia" />
+   <Button fx:id="btn_indietro" layoutX="402.0" layoutY="449.0" prefHeight="30" prefWidth="90" style="-fx-background-color: #00796b; -fx-text-fill: white;" text="Indietro" onAction="#loadmenu" />
 
 </AnchorPane>
