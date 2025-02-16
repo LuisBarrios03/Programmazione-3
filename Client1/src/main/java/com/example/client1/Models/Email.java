@@ -1,5 +1,6 @@
 package com.example.client1.Models;
 
+import javafx.beans.property.BooleanProperty;
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.List;
@@ -14,8 +15,10 @@ public class Email implements Serializable {
     private String subject;
     private String body;
     private String date;
+      // Aggiungi questa proprietà
 
-    public Email( String id,String sender, List<String> recipients, String subject, String body, String date) {
+    public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
+
         this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = List.copyOf(recipients);
@@ -30,6 +33,30 @@ public class Email implements Serializable {
     public String getSubject() { return subject; }
     public String getBody() { return body; }
     public String getDate() { return date; }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setRecipients(List<String> recipients) {
+        this.recipients = recipients;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 
     @Override
     public String toString() {
@@ -72,4 +99,5 @@ public class Email implements Serializable {
                 emailJson.getString("body"),
                 emailJson.getString("date"));
     }
+
 }

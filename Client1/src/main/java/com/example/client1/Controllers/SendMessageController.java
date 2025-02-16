@@ -2,6 +2,7 @@ package com.example.client1.Controllers;
 
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
+import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,52 +51,71 @@ public class SendMessageController {
     }
 
     public void setButtonAction(Button button) {
-
         button.setOnAction(event -> {
+            // Raccogli i dati dai campi
             String recipient = recipientField.getText();
             String subject = subjectField.getText();
             String message = messageBody.getText();
             String cc = ccField.getText();
+
+            // Crea un thread per gestire l'invio asincrono
             Thread thread = new Thread(() -> {
                 try {
-                    JSONObject data = new JSONObject()
-                            .put("action", "SEND_EMAIL")
-                            .put("data", new JSONObject()
-                                    .put("mail", new JSONObject()
-                                            .put("id", UUID.randomUUID().toString())
-                                            .put("sender", client.getAccount())
-                                            .put("recipient", recipient)
-                                            .put("cc", cc)
-                                            .put("subject", subject)
-                                            .put("content", message)
-                                    )
-                            );
-                    JSONObject response = serverHandler.sendCommand(data);
-                    if (response.getString("status").equals("OK")) {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Successo");
-                            alert.setHeaderText("Email inviata con successo");
-                            alert.showAndWait();
-                            clearAllData();
-                            loadmenu();
-                        });
-                    } else {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Errore");
-                            alert.setHeaderText("Errore nell'invio dell'email");
-                            alert.setContentText(response.getString("message"));
-                            alert.showAndWait();
-                        });
-                    }
+                    // Crea il JSON utilizzando Gson
+                    JsonObject mailData = new JsonObject();
+                    mailData.addProperty("id", UUID.randomUUID().toString());
+                    mailData.addProperty("sender", client.getAccount());
+                    mailData.addProperty("recipient", recipient);
+                    mailData.addProperty("cc", cc);
+                    mailData.addProperty("subject", subject);
+                    mailData.addProperty("content", message);
+
+                    JsonObject data = new JsonObject();
+                    data.addProperty("action", "SEND_EMAIL");
+                    JsonObject dataContainer = new JsonObject();
+                    dataContainer.add("mail", mailData);
+                    data.add("data", dataContainer);
+
+                    // Invia il comando al server
+                    JsonObject response = serverHandler.sendCommand(data);
+
+                    // Gestisci la risposta
+                    Platform.runLater(() -> handleResponse(response));
+
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();  // Log dell'errore
+                    Platform.runLater(() -> showError("Errore nella comunicazione con il server"));
                 }
             });
             thread.start();
         });
     }
+    private void handleResponse(JsonObject response) {
+        // Controlla lo stato della risposta
+        if (response.get("status").getAsString().equals("OK")) {
+            showSuccess("Email inviata con successo");
+            clearAllData();
+            loadmenu();
+        } else {
+            showError("Errore nell'invio dell'email: " + response.get("message").getAsString());
+        }
+    }
+
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Successo");
+        alert.setHeaderText(message);
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Errore");
+        alert.setHeaderText("Si è verificato un errore");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 
     public void loadmenu() {
        clearAllData();
