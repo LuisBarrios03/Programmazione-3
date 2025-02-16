@@ -14,7 +14,6 @@ public class Client {
     private final SimpleStringProperty date;
     private final SimpleStringProperty connection;
     private final ListProperty<Email> mailList;
-    private final BooleanProperty selected;
 
     public Client() {
         this.account = new SimpleStringProperty();
@@ -25,7 +24,6 @@ public class Client {
         this.date = new SimpleStringProperty();
         this.connection = new SimpleStringProperty();
         this.mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
-        this.selected = new SimpleBooleanProperty(false);
     }
 
     public String getAccount() {
@@ -122,17 +120,5 @@ public class Client {
 
     public void setMailList(List<Email> newMailList) {
         this.mailList.set(FXCollections.observableArrayList(newMailList));
-    }
-
-    public boolean isSelected() {
-        return selected.get();
-    }
-
-    public BooleanProperty selectedProperty() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected.set(selected);
     }
 }

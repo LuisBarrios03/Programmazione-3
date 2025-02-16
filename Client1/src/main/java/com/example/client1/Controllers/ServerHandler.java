@@ -45,18 +45,6 @@ public class ServerHandler {
         }
     }
 
-    // Metodi di utilità per la serializzazione/deserializzazione su file
-    public void serializeToJson(String filePath, JsonObject data) throws IOException {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            writer.write(gson.toJson(data));  // Scrive il JsonObject su file
-        }
-    }
-
-    public JsonObject deserializeFromJson(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));  // Legge il file
-        return JsonParser.parseString(content).getAsJsonObject();  // Converte il contenuto in JsonObject
-    }
-
     /**
      * Tenta di connettersi al server e restituisce un JsonObject con lo stato della connessione.
      */

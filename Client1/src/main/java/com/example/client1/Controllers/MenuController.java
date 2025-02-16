@@ -3,10 +3,10 @@ package com.example.client1.Controllers;
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
 import com.example.client1.Models.Email;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,12 +22,15 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MenuController {
     private Client client;
     private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
     private ScheduledExecutorService scheduler;
 
+    @FXML
+    private Label lbl_menu_title;
     @FXML
     private Button btn_nuovamail;
     @FXML
@@ -41,7 +44,7 @@ public class MenuController {
     @FXML
     private TableView<Email> inbox;
     @FXML
-    private TableColumn<Client, Boolean> inbox_crocette;
+    private TableColumn<Email, Boolean> inbox_crocette;
     @FXML
     private TableColumn<Email, String> inbox_titolo;
     @FXML
@@ -58,10 +61,13 @@ public class MenuController {
     @FXML
     public void initialize() {
         client = Application.getClient();
+        lbl_menu_title.setText("Benvenuto, " + client.getAccount());
         lbl_connessione.setText("Stato Connessione: Online");
         lbl_connessione.setVisible(true);
 
+        // Imposta il binding corretto: "subject" corrisponde a getSubject() in Email
         inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("subject"));
+        // La colonna per la selezione ora utilizza Email e il suo selectedProperty
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
@@ -71,14 +77,15 @@ public class MenuController {
         updateInbox();
     }
 
-    private CheckBoxTableCell<Client, Boolean> createCheckBoxTableCell() {
+    private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
             final CheckBox checkBox = new CheckBox();
 
             {
                 checkBox.setOnAction(e -> {
-                    Client client = getTableView().getItems().get(getIndex());
-                    client.setSelected(checkBox.isSelected());
+                    // Recupera l'oggetto Email corrispondente alla riga corrente
+                    Email email = getTableView().getItems().get(getIndex());
+                    email.setSelected(checkBox.isSelected());
                 });
             }
 
@@ -104,11 +111,10 @@ public class MenuController {
         JsonObject data = new JsonObject();
         JsonObject mailData = new JsonObject();
 
-        // Usa addProperty invece di add
-        mailData.addProperty("sender", client.getAccount());  // aggiungi una stringa come proprietà
-
-        data.addProperty("action", "GET_MAILBOX"); // Usa addProperty anche per la "action"
-        data.add("data", mailData);  // "data" è un JsonObject, quindi si usa add()
+        // Invia l'account del client per recuperare la mailbox
+        mailData.addProperty("sender", client.getAccount());
+        data.addProperty("action", "GET_MAILBOX");
+        data.add("data", mailData);
 
         Thread updateThread = new Thread(() -> {
             try {
@@ -122,35 +128,63 @@ public class MenuController {
         updateThread.start();
     }
 
-
     private void handleInboxResponse(JsonObject response) {
-        if (response.get("status").getAsString().equals("OK")) {
-            JsonArray mailList = response.getAsJsonArray("data");
-            if (mailList != null && mailList.size() > 0) {
-                List<Email> emails = new ArrayList<>();
-                for (int i = 0; i < mailList.size(); i++) {
-                    JsonObject mail = mailList.get(i).getAsJsonObject();
-                    List<String> recipients = new ArrayList<>();
-                    mail.getAsJsonArray("destinatari").forEach(recipient -> recipients.add(recipient.getAsString()));
+        if (response.has("status") && !response.get("status").isJsonNull()
+                && response.get("status").getAsString().equals("OK")) {
 
-                    emails.add(new Email(
-                            mail.get("id").getAsString(),
-                            mail.get("sender").getAsString(),
-                            recipients,
-                            mail.get("subject").getAsString(),
-                            mail.get("body").getAsString(),
-                            mail.get("date").getAsString()
-                            ));
+            // Verifica se "data" esiste ed è valido
+            if (!response.has("emails") || response.get("emails").isJsonNull()) {
+                updateMailList(new ArrayList<>());
+                showError("Nessun dato ricevuto dal server.");
+                return;
+            }
+
+            JsonElement dataElement = response.get("emails");
+            JsonArray mailList = null;
+
+            // Se "data" è un array
+            if (dataElement.isJsonArray()) {
+                mailList = dataElement.getAsJsonArray();
+            }
+            // Se "data" è una stringa JSON, prova a convertirla
+            else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
+                String jsonString = dataElement.getAsString();
+                try {
+                    mailList = JsonParser.parseString(jsonString).getAsJsonArray();
+                } catch (JsonSyntaxException e) {
+                    showError("Formato dei dati non valido.");
+                    return;
+                }
+            }
+
+            if (mailList != null && mailList.size() > 0) {
+                Gson gsonCustom = new GsonBuilder()
+                        .registerTypeAdapter(Email.class, new EmailAdapter())
+                        .create();
+
+                List<Email> emails = new ArrayList<>();
+                for (JsonElement mailElement : mailList) {
+                    if (mailElement.isJsonObject()) {
+                        Email email = gsonCustom.fromJson(mailElement, Email.class);
+                        emails.add(email);
+                    }
                 }
                 updateMailList(emails);
             } else {
                 updateMailList(new ArrayList<>());
                 showError("La casella di posta è vuota.");
             }
+
         } else {
-            showError("Errore durante l'aggiornamento della casella di posta: " + response.get("message").getAsString());
+            // Controllo sicuro per il messaggio di errore
+            String errorMsg = (response.has("message") && !response.get("message").isJsonNull())
+                    ? response.get("message").getAsString()
+                    : "Errore sconosciuto";
+
+            showError("Errore durante l'aggiornamento della casella di posta: " + errorMsg);
         }
     }
+
 
     private void updateMailList(List<Email> emails) {
         Platform.runLater(() -> {
@@ -170,6 +204,7 @@ public class MenuController {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 updateConnectionStatus();
+                updateInbox();
             } catch (Exception e) {
                 showError("Errore di connessione con il server");
             }
@@ -190,20 +225,19 @@ public class MenuController {
         });
     }
 
-    public void logOut(ActionEvent e){
+    public void logOut(ActionEvent e) {
         try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
-                Scene scene = new Scene(fxmlLoader.load());
-                Stage stage = (Stage) btn_logout.getScene().getWindow();
-                stage.setTitle("Login");
-                stage.setScene(scene);
-                stage.show();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = (Stage) btn_logout.getScene().getWindow();
+            stage.setTitle("Login");
+            stage.setScene(scene);
+            stage.show();
             System.out.println("Logout effettuato");
         } catch (Exception ex) {
             showError("Errore durante il logout");
         }
     }
-
 
     public void newEmail(ActionEvent actionEvent) {
         try {
@@ -220,11 +254,37 @@ public class MenuController {
 
     public void populateTable() {
         try {
-            // Popola la tabella con la lista di email
-            inbox.setItems(client.mailListProperty()); // Usando direttamente la proprietà osservabile
+            inbox.setItems(client.mailListProperty());
         } catch (Exception e) {
             showError("Errore durante il popolamento della tabella");
         }
+    }
+
+    @FXML
+    public void cancelSelected(ActionEvent e) {
+        client.getMailList().removeIf(email -> {
+            if (email.isSelected()) {
+                JsonObject data = new JsonObject();
+                JsonObject mailData = new JsonObject();
+                mailData.addProperty("sender", client.getAccount());
+                mailData.addProperty("id", email.getId());
+                data.addProperty("action", "DELETE_EMAIL");
+                data.add("data", mailData);
+
+                try {
+                    JsonObject response = serverHandler.sendCommand(data);
+                    if ("OK".equals(response.get("status").getAsString())) {
+                        return true; // Rimuove l'email se il server conferma l'eliminazione
+                    } else {
+                        Platform.runLater(() -> showError("Errore: " + response.get("message").getAsString()));
+                    }
+                } catch (IOException ex) {
+                    Platform.runLater(() -> showError("Errore di connessione con il server"));
+                }
+            }
+            return false;
+        });
+        inbox.refresh();
     }
 
 }

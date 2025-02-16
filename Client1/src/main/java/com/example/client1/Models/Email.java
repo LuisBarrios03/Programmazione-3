@@ -1,7 +1,7 @@
 package com.example.client1.Models;
 
 import javafx.beans.property.BooleanProperty;
-import org.json.JSONObject;
+import javafx.beans.property.SimpleBooleanProperty;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -15,11 +15,12 @@ public class Email implements Serializable {
     private String subject;
     private String body;
     private String date;
-      // Aggiungi questa proprietà
+    // Proprietà per la selezione nella TableView
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
     public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
-
-        this.id = UUID.randomUUID().toString();
+        // Se l'id passato è nullo, ne genera uno nuovo
+        this.id = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = List.copyOf(recipients);
         this.subject = subject;
@@ -27,6 +28,10 @@ public class Email implements Serializable {
         this.date = date;
     }
 
+    public Email() {
+    }
+
+    // Getters
     public String getId() { return id; }
     public String getSender() { return sender; }
     public List<String> getRecipients() { return recipients; }
@@ -34,40 +39,35 @@ public class Email implements Serializable {
     public String getBody() { return body; }
     public String getDate() { return date; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    // Setters
+    public void setId(String id) { this.id = id; }
+    public void setSender(String sender) { this.sender = sender; }
+    public void setSubject(String subject) { this.subject = subject; }
+    public void setRecipients(List<String> recipients) { this.recipients = recipients; }
+    public void setBody(String body) { this.body = body; }
+    public void setDate(String date) { this.date = date; }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    // Proprietà per il binding della selezione
+    public BooleanProperty selectedProperty() {
+        return selected;
     }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public boolean isSelected() {
+        return selected.get();
     }
-
-    public void setRecipients(List<String> recipients) {
-        this.recipients = recipients;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
     }
 
     @Override
     public String toString() {
-        return "ID: " + id + "\nMittente: " + sender + "\nDestinatario: " + recipients +
+        return "ID: " + id + "\nMittente: " + sender + "\nDestinatari: " + recipients +
                 "\nOggetto: " + subject + "\nData: " + date + "\n\nCorpo: " + body;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;
+        if (!(o instanceof Email)) return false;
         Email email = (Email) o;
         return Objects.equals(id, email.id) &&
                 Objects.equals(sender, email.sender) &&

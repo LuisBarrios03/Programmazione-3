@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.example.client1.Controllers.LoginController.isValid;
+
 public class SendMessageController {
     private Client client;
     private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
@@ -97,6 +99,10 @@ public class SendMessageController {
                     // Converte la lista di destinatari in un array JSON
                     JsonArray recipientsArray = new JsonArray();
                     for (String recipient : recipients) {
+                        if(!isValid(recipient)){
+                            Platform.runLater(() -> showError("Formato delle mails non valido."));
+                            return;
+                        }
                         recipientsArray.add(recipient);
                     }
                     mailData.add("recipients", recipientsArray);

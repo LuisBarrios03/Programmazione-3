@@ -90,7 +90,7 @@ public class LoginController {
         }
     }
 
-    private boolean isValid(String account) {
+    public static boolean isValid(String account) {
         return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
     }
 
