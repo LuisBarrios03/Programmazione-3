@@ -13,9 +13,6 @@
     <!-- Campo per Cc -->
     <TextField fx:id="ccField" layoutX="10" layoutY="50" prefHeight="30" prefWidth="285" promptText="Cc" />
 
-    <!-- Campo per Ccn -->
-    <TextField fx:id="bccField" layoutX="305" layoutY="50" prefHeight="30" prefWidth="285" promptText="Ccn" />
-
     <!-- Campo per l'oggetto -->
     <TextField fx:id="subjectField" layoutX="10" layoutY="90" prefHeight="30" prefWidth="580" promptText="Oggetto" />
 

@@ -3,8 +3,6 @@ package com.example.client1.Controllers;
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,13 +11,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.UUID;
 
 public class SendMessageController {
+    private Client client;
+    private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
+
     @FXML
     private Button btn_indietro;
 
@@ -34,18 +34,9 @@ public class SendMessageController {
 
     @FXML
     private TextArea messageBody;
+
     @FXML
     private TextField ccField;
-    @FXML
-    private TextField bccField;
-
-    private int requestType;
-
-    private Client client;
-
-    String from ="", to = "", cc = "", subject = "", content = "";
-
-    private final ServerHandler serverDriver = new ServerHandler(5000, "localhost");
 
 
     public void initialize() {
@@ -54,10 +45,10 @@ public class SendMessageController {
         subjectField.textProperty().bindBidirectional(client.subjectProperty());
         messageBody.textProperty().bindBidirectional(client.bodyProperty());
         ccField.textProperty().bindBidirectional(client.recipientsProperty());
-        bccField.textProperty().bindBidirectional(client.recipientProperty());
 
         setButtonAction(sendButton);
     }
+
     public void setButtonAction(Button button) {
 
         button.setOnAction(event -> {
@@ -65,28 +56,29 @@ public class SendMessageController {
             String subject = subjectField.getText();
             String message = messageBody.getText();
             String cc = ccField.getText();
-            String bcc = bccField.getText();
             Thread thread = new Thread(() -> {
                 try {
                     JSONObject data = new JSONObject()
                             .put("action", "SEND_EMAIL")
                             .put("data", new JSONObject()
                                     .put("mail", new JSONObject()
+                                            .put("id", UUID.randomUUID().toString())
                                             .put("sender", client.getAccount())
                                             .put("recipient", recipient)
                                             .put("cc", cc)
-                                            .put("bcc", bcc)
                                             .put("subject", subject)
                                             .put("content", message)
                                     )
                             );
-                    JSONObject response = serverDriver.sendCommand(data);
+                    JSONObject response = serverHandler.sendCommand(data);
                     if (response.getString("status").equals("OK")) {
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle("Successo");
                             alert.setHeaderText("Email inviata con successo");
                             alert.showAndWait();
+                            clearAllData();
+                            loadmenu();
                         });
                     } else {
                         Platform.runLater(() -> {
@@ -102,8 +94,6 @@ public class SendMessageController {
                 }
             });
             thread.start();
-            clearAllData();
-            loadmenu();
         });
     }
 
@@ -127,6 +117,5 @@ public class SendMessageController {
         subjectField.clear();
         messageBody.clear();
         ccField.clear();
-        bccField.clear();
     }
 }

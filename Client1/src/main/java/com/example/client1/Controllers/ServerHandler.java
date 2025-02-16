@@ -26,7 +26,7 @@ public class ServerHandler {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            out.println(data);
+            out.println(data.toString()); // Assicura la serializzazione JSON
             String response = in.readLine();
             return (response != null) ? receiveMessage(response)
                     : new JSONObject().put("status", "ERRORE").put("message", "Nessuna risposta dal server");
@@ -43,29 +43,28 @@ public class ServerHandler {
         return response;
     }
 
-    public void serializeToJson(String filePath, JSONObject data) throws IOException {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            writer.write(data.toString(4));
-        }
-    }
-
-    public JSONObject deserializeFromJson(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
-        return new JSONObject(content);
-    }
-
     public List<Email> createInbox(JSONObject data) {
         JSONArray mailList = data.optJSONArray("MailList");
+        if (mailList == null) {
+            return new ArrayList<>(); // Evita NullPointerException
+        }
+
         List<Email> mailListConverted = new ArrayList<>();
         for (int i = 0; i < mailList.length(); i++) {
-            JSONObject mail = mailList.getJSONObject(i);
-            List<String> recipients = mail.optJSONArray("recipients").toList().stream().map(Object::toString).toList();
+            JSONObject mail = mailList.optJSONObject(i);
+            if (mail == null) continue; // Ignora mail non valide
+
+            JSONArray recipientsArray = mail.optJSONArray("recipients");
+            List<String> recipients = (recipientsArray != null) ?
+                    recipientsArray.toList().stream().map(Object::toString).toList() :
+                    new ArrayList<>();
+
             Email email = new Email(
-                    mail.getString("id"),
-                    mail.getString("sender"),
+                    mail.optString("id", "0"),
+                    mail.optString("sender", ""),
                     recipients,
-                    mail.getString("subject"),
-                    mail.getString("body"),
+                    mail.optString("subject", ""),
+                    mail.optString("body", ""),
                     mail.optString("timestamp", LocalDateTime.now().toString())
             );
             mailListConverted.add(email);
@@ -85,19 +84,12 @@ public class ServerHandler {
                 .orElse("0");
     }
 
-    /**
-     * Metodo per verificare la connessione al server.
-     *
-     * @return JSONObject contenente lo stato della connessione e un messaggio.
-     */
     public JSONObject tryConnection() {
         JSONObject response = new JSONObject();
         try (Socket socket = new Socket(serverAddress, serverPort)) {
-            // Connessione riuscita
             response.put("status", "OK");
             response.put("message", "Connesso al server con successo.");
         } catch (IOException e) {
-            // Errore durante la connessione
             response.put("status", "ERRORE");
             response.put("message", "Impossibile connettersi al server: " + e.getMessage());
         }
