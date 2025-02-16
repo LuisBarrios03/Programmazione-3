@@ -3,6 +3,8 @@ package com.example.client1.Controllers;
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
 import com.example.client1.Models.Email;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -13,8 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,41 +30,28 @@ public class MenuController {
 
     @FXML
     private Button btn_nuovamail;
-
     @FXML
     private Button btn_cancellamail;
-
     @FXML
     private Button btn_aggiornamailbox;
-
     @FXML
     private Button btn_logout;
-
     @FXML
     private Label lbl_connessione;
-
     @FXML
     private TableView<Email> inbox;
-
-    // Corretto: la colonna ora gestisce Email e non Client
     @FXML
     private TableColumn<Client, Boolean> inbox_crocette;
-
     @FXML
     private TableColumn<Email, String> inbox_titolo;
-
     @FXML
     private TextArea textemail;
-
     @FXML
     private Button btn_rispondi;
-
     @FXML
     private Button btn_inoltra;
-
     @FXML
     private Button btn_inoltratutti;
-
     @FXML
     private Label lbl_error;
 
@@ -74,12 +61,20 @@ public class MenuController {
         lbl_connessione.setText("Stato Connessione: Online");
         lbl_connessione.setVisible(true);
 
-        inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("Subject"));
-
+        inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("subject"));
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+        inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
-        inbox_crocette.setCellFactory(tc -> new CheckBoxTableCell<>() {
+        inbox.setItems(client.mailListProperty());
+
+        scheduleConnectionStatusUpdates();
+        updateInbox();
+    }
+
+    private CheckBoxTableCell<Client, Boolean> createCheckBoxTableCell() {
+        return new CheckBoxTableCell<>() {
             final CheckBox checkBox = new CheckBox();
+
             {
                 checkBox.setOnAction(e -> {
                     Client client = getTableView().getItems().get(getIndex());
@@ -97,12 +92,7 @@ public class MenuController {
                     setGraphic(null);
                 }
             }
-        });
-
-        inbox.setItems(client.mailListProperty());
-
-        scheduleConnectionStatusUpdates();
-        updateInbox();
+        };
     }
 
     @FXML
@@ -111,79 +101,94 @@ public class MenuController {
     }
 
     public void updateInbox() {
-        JSONObject data = new JSONObject()
-                .put("action", "GET_MAILBOX")
-                .put("data", new JSONObject().put("mail", new JSONObject().put("sender", client.getAccount())));
+        JsonObject data = new JsonObject();
+        JsonObject mailData = new JsonObject();
 
-            Thread updateThread = new Thread(() -> {
+        // Usa addProperty invece di add
+        mailData.addProperty("sender", client.getAccount());  // aggiungi una stringa come proprietà
+
+        data.addProperty("action", "GET_MAILBOX"); // Usa addProperty anche per la "action"
+        data.add("data", mailData);  // "data" è un JsonObject, quindi si usa add()
+
+        Thread updateThread = new Thread(() -> {
             try {
-                JSONObject response = serverHandler.sendCommand(data);
-
-                // Verifica se la risposta ha un campo "status" che indica successo
-                if (response.getString("status").equals("OK")) {
-                    // Verifica se il campo "data" è presente e non vuoto
-                    if (response.has("data") && !response.isNull("data") && response.getJSONArray("data").length() > 0) {
-                        JSONArray mailList = response.getJSONArray("data");
-                        List<Email> emails = new ArrayList<>();
-                        for (int i = 0; i < mailList.length(); i++) {
-                            JSONObject mail = mailList.getJSONObject(i);
-                            emails.add(new Email(
-                                    mail.getString("id"),
-                                    mail.getString("sender"),
-                                    mail.getJSONArray("destinatari").toList().stream().map(Object::toString).toList(),
-                                    mail.getString("subject"),
-                                    mail.getString("body"),
-                                    mail.getString("date")
-                            ));
-                        }
-                        // Aggiorna l'interfaccia utente con le email ricevute
-                        Platform.runLater(() -> {
-                            client.setMailList(FXCollections.observableArrayList(emails));
-                            inbox.setItems(client.mailListProperty());
-                        });
-                    } else {
-                        // Se "data" non è presente o è vuoto, imposta la lista vuota
-                        Platform.runLater(() -> {
-                            client.setMailList(FXCollections.observableArrayList());
-                            inbox.setItems(client.mailListProperty());
-                            lbl_error.setText("La casella di posta è vuota.");
-                        });
-                    }
-                } else {
-                    // Se la risposta ha uno status diverso da "OK", mostra un errore
-                    Platform.runLater(() -> lbl_error.setText("Errore durante l'aggiornamento della casella di posta: " + response.getString("message")));
-                }
+                JsonObject response = serverHandler.sendCommand(data);
+                handleInboxResponse(response);
             } catch (IOException ex) {
-                // Gestisci errori di connessione con il server
-                Platform.runLater(() -> lbl_error.setText("Errore di connessione con il server"));
+                showError("Errore di connessione con il server");
             }
         });
         updateThread.start();
     }
 
+
+    private void handleInboxResponse(JsonObject response) {
+        if (response.get("status").getAsString().equals("OK")) {
+            JsonArray mailList = response.getAsJsonArray("data");
+            if (mailList != null && mailList.size() > 0) {
+                List<Email> emails = new ArrayList<>();
+                for (int i = 0; i < mailList.size(); i++) {
+                    JsonObject mail = mailList.get(i).getAsJsonObject();
+                    List<String> recipients = new ArrayList<>();
+                    mail.getAsJsonArray("destinatari").forEach(recipient -> recipients.add(recipient.getAsString()));
+
+                    emails.add(new Email(
+                            mail.get("id").getAsString(),
+                            mail.get("sender").getAsString(),
+                            recipients,
+                            mail.get("subject").getAsString(),
+                            mail.get("body").getAsString(),
+                            mail.get("date").getAsString()
+                            ));
+                }
+                updateMailList(emails);
+            } else {
+                updateMailList(new ArrayList<>());
+                showError("La casella di posta è vuota.");
+            }
+        } else {
+            showError("Errore durante l'aggiornamento della casella di posta: " + response.get("message").getAsString());
+        }
+    }
+
+    private void updateMailList(List<Email> emails) {
+        Platform.runLater(() -> {
+            System.out.println("Aggiornamento casella di posta");
+            client.setMailList(FXCollections.observableArrayList(emails));
+            inbox.setItems(client.mailListProperty());
+            System.out.println("Casella di posta aggiornata");
+        });
+    }
+
+    private void showError(String message) {
+        Platform.runLater(() -> lbl_error.setText(message));
+    }
+
     public void scheduleConnectionStatusUpdates() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> Platform.runLater(() -> {
+        scheduler.scheduleAtFixedRate(() -> {
             try {
                 updateConnectionStatus();
             } catch (Exception e) {
-                lbl_error.setText("Errore di connessione con il server");
-                System.err.println("Errore durante l'aggiornamento delle email: " + e.getMessage());
+                showError("Errore di connessione con il server");
             }
-        }), 1, 5, TimeUnit.SECONDS);
+        }, 1, 5, TimeUnit.SECONDS);
     }
 
     public void updateConnectionStatus() {
-        // Modifica: analizzo il JSONObject restituito da tryConnection()
-        JSONObject connectionResponse = serverHandler.tryConnection();
-        if (connectionResponse.getString("status").equals("OK")) {
-            client.setConnection("ON");
-            lbl_connessione.setText("Stato Connessione: Online");
-        } else {
-            client.setConnection("OFF");
-            lbl_connessione.setText("Stato Connessione: Offline");
-        }
+        JsonObject connectionResponse = serverHandler.tryConnection();
+
+        Platform.runLater(() -> {
+            if (connectionResponse.get("status").getAsString().equals("OK")) {
+                client.setConnection("ON");
+                lbl_connessione.setText("Stato Connessione: Online");
+            } else {
+                client.setConnection("OFF");
+                lbl_connessione.setText("Stato Connessione: Offline");
+            }
+        });
     }
+
 
     public void newEmail(ActionEvent actionEvent) {
         try {

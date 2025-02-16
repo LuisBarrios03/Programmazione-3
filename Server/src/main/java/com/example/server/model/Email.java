@@ -2,18 +2,23 @@ package com.example.server.model;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Email implements Serializable {
-    private String id;
-    private String sender;
-    private List<String> recipients;
-    private String subject;
-    private String body;
-    private String date;
+    @Expose private String id;
+    @Expose private String sender;
+    @Expose private List<String> recipients;
+    @Expose private String subject;
+    @Expose private String body;
+    @Expose private String date;
+
+    public Email() {
+    }
 
     public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
         this.id = UUID.randomUUID().toString();
@@ -30,6 +35,30 @@ public class Email implements Serializable {
     public String getSubject() { return subject; }
     public String getBody() { return body; }
     public String getDate() { return date; }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setRecipients(List<String> recipients) {
+        this.recipients = recipients;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 
     @Override
     public String toString() {

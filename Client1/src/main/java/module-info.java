@@ -3,7 +3,7 @@ module com.example.client1 {
     requires javafx.fxml;
     requires org.json;
     requires java.desktop;
-
+    requires com.google.gson;
 
     opens com.example.client1 to javafx.fxml;
     exports com.example.client1;
