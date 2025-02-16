@@ -44,7 +44,7 @@ public class MailStorage {
     }
 
     // Salva la MailBox sul file "account.bin"
-    public void saveMailBox(MailBox mailbox) throws IOException {
+    public  void saveMailBox(MailBox mailbox) throws IOException {
         String account = mailbox.getAccount();
         ReadWriteLock lock = getLockForAccount(account);
         lock.writeLock().lock();

@@ -2,8 +2,11 @@ package com.example.client1.Controllers;
 
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,10 +15,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.json.JSONObject;
+import javafx.util.StringConverter;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SendMessageController {
     private Client client;
@@ -28,35 +36,55 @@ public class SendMessageController {
     private Button sendButton;
 
     @FXML
-    private TextField recipientField;
-
-    @FXML
     private TextField subjectField;
 
     @FXML
     private TextArea messageBody;
 
     @FXML
-    private TextField ccField;
-
+    private TextField recipientField;
 
     public void initialize() {
         client = Application.getClient();
-        recipientField.textProperty().bindBidirectional(client.senderProperty());
         subjectField.textProperty().bindBidirectional(client.subjectProperty());
         messageBody.textProperty().bindBidirectional(client.bodyProperty());
-        ccField.textProperty().bindBidirectional(client.recipientsProperty());
+
+        // Converte la lista di destinatari in una stringa separata da virgole e viceversa
+        recipientField.textProperty().bindBidirectional(client.recipientsProperty(), new StringConverter<ObservableList<String>>() {
+            @Override
+            public String toString(ObservableList<String> recipients) {
+                return recipients == null ? "" : String.join(",", recipients);
+            }
+
+            @Override
+            public ObservableList<String> fromString(String string) {
+                return FXCollections.observableArrayList(Arrays.stream(string.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList()));
+            }
+        });
 
         setButtonAction(sendButton);
     }
 
+
     public void setButtonAction(Button button) {
         button.setOnAction(event -> {
             // Raccogli i dati dai campi
-            String recipient = recipientField.getText();
             String subject = subjectField.getText();
             String message = messageBody.getText();
-            String cc = ccField.getText();
+
+            // Converte il campo ccField in una lista di stringhe separata da virgole
+            List<String> recipients = Arrays.stream(recipientField.getText().split(","))
+                    .map(String::trim)  // Rimuove gli spazi vuoti
+                    .filter(s -> !s.isEmpty()) // Evita stringhe vuote
+                    .collect(Collectors.toList());
+
+            if (recipients.isEmpty()) {
+                showError("Devi specificare almeno un destinatario.");
+                return;
+            }
 
             // Crea un thread per gestire l'invio asincrono
             Thread thread = new Thread(() -> {
@@ -65,11 +93,17 @@ public class SendMessageController {
                     JsonObject mailData = new JsonObject();
                     mailData.addProperty("id", UUID.randomUUID().toString());
                     mailData.addProperty("sender", client.getAccount());
-                    mailData.addProperty("recipient", recipient);
-                    mailData.addProperty("cc", cc);
+
+                    // Converte la lista di destinatari in un array JSON
+                    JsonArray recipientsArray = new JsonArray();
+                    for (String recipient : recipients) {
+                        recipientsArray.add(recipient);
+                    }
+                    mailData.add("recipients", recipientsArray);
+
                     mailData.addProperty("subject", subject);
                     mailData.addProperty("content", message);
-
+                    mailData.addProperty("date", LocalDateTime.now().toString());
                     JsonObject data = new JsonObject();
                     data.addProperty("action", "SEND_EMAIL");
                     JsonObject dataContainer = new JsonObject();
@@ -83,15 +117,15 @@ public class SendMessageController {
                     Platform.runLater(() -> handleResponse(response));
 
                 } catch (IOException e) {
-                    e.printStackTrace();  // Log dell'errore
+                    e.printStackTrace();
                     Platform.runLater(() -> showError("Errore nella comunicazione con il server"));
                 }
             });
             thread.start();
         });
     }
+
     private void handleResponse(JsonObject response) {
-        // Controlla lo stato della risposta
         if (response.get("status").getAsString().equals("OK")) {
             showSuccess("Email inviata con successo");
             clearAllData();
@@ -116,9 +150,8 @@ public class SendMessageController {
         alert.showAndWait();
     }
 
-
     public void loadmenu() {
-       clearAllData();
+        clearAllData();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/menu.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -132,10 +165,9 @@ public class SendMessageController {
         }
     }
 
-    public void clearAllData(){
-        recipientField.clear();
+    public void clearAllData() {
         subjectField.clear();
         messageBody.clear();
-        ccField.clear();
+        recipientField.clear();
     }
 }

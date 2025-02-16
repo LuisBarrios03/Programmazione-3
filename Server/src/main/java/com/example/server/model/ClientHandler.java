@@ -10,6 +10,7 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
@@ -89,12 +90,27 @@ public class ClientHandler implements Runnable {
             // Estrae il JSON dell'email dalla struttura coerente { "data": { "mail": { ... } } }
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
             Email email = gson.fromJson(mailJson, Email.class);
-
-            for (String recipient : email.getRecipients()) {
-                File mailboxFile = new File("data", recipient + ".bin");
-                MailBox mailbox = mailboxFile.exists() ? MailBox.deserialize(mailboxFile) : new MailBox(recipient);
-                mailbox.sendEmail(email);
-                mailbox.serialize(mailboxFile);
+            if (!hasDuplicates(email.getRecipients(),0)) {
+                for (String recipient : email.getRecipients()) {
+                    if (isValid(recipient)) {
+                        File mailboxFile = new File("data", recipient + ".bin");
+                        MailBox mailbox = mailboxFile.exists() ? mailStorage.loadMailBox(recipient) : new MailBox(recipient);
+                        mailbox.sendEmail(email);
+                        mailStorage.saveMailBox(mailbox);
+                    } else {
+                        serverController.appendLog("Errore in handleSendEmail: formato non valido");
+                        JsonObject response = new JsonObject();
+                        response.addProperty("status", "ERRORE");
+                        response.addProperty("message", "Formato non valido");
+                        return response;
+                    }
+                }
+            } else {
+                serverController.appendLog("Errore in handleSendEmail: presenti duplicati");
+                JsonObject response = new JsonObject();
+                response.addProperty("status", "ERRORE");
+                response.addProperty("message", "presenti duplicati");
+                return response;
             }
             serverController.appendLog("Email inviata da: " + email.getSender());
             JsonObject response = new JsonObject();
@@ -117,7 +133,6 @@ public class ClientHandler implements Runnable {
                 response.addProperty("message", "Richiesta malformata");
                 return response;
             }
-
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
             String sender = mailJson.get("sender").getAsString();
             if (!mailStorage.isRegisteredEmail(sender)) {
@@ -146,7 +161,6 @@ public class ClientHandler implements Runnable {
             return response;
         }
     }
-
 
     private JsonObject handleDeleteEmail(JsonObject request) {
         try {
@@ -202,5 +216,27 @@ public class ClientHandler implements Runnable {
             response.addProperty("message", "Errore nel login");
             return response;
         }
+    }
+
+    private boolean isValid(String account) {
+        return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
+    }
+
+    private static boolean hasDuplicates(List<String> recipients, int index) {
+        // Caso base: se abbiamo controllato tutti gli elementi, non ci sono duplicati
+        if (index >= recipients.size() - 1) {
+            return false;
+        }
+        String recipient = recipients.get(index);
+
+        // Controlla se il recipient corrente appare nelle posizioni successive
+        for (int i = index+1; i < recipients.size(); i++) {
+            if (recipient.equals(recipients.get(i))) {
+                return true;
+            }
+        }
+
+        // Passa al prossimo elemento ricorsivamente
+        return hasDuplicates(recipients, index + 1);
     }
 }

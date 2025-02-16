@@ -76,28 +76,4 @@ public class Email implements Serializable {
                 Objects.equals(body, email.body) &&
                 Objects.equals(date, email.date);
     }
-
-    // Converti l'email in JSONObject (Serializzazione)
-    public JSONObject toJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", id);
-        json.put("sender", sender);
-        json.put("recipients", recipients);
-        json.put("subject", subject);
-        json.put("body", body);
-        json.put("date", date);
-        return json;
-    }
-
-    // Crea un'istanza di Email da un JSONObject (Deserializzazione)
-    public static Email fromJson(JSONObject emailJson) {
-        return new Email(
-                emailJson.getString("id"),
-                emailJson.getString("sender"),
-                emailJson.getJSONArray("recipients").toList().stream().map(Object::toString).toList(),
-                emailJson.getString("subject"),
-                emailJson.getString("body"),
-                emailJson.getString("date"));
-    }
-
 }

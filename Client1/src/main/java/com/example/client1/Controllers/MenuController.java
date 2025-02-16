@@ -114,6 +114,7 @@ public class MenuController {
             try {
                 JsonObject response = serverHandler.sendCommand(data);
                 handleInboxResponse(response);
+                populateTable();
             } catch (IOException ex) {
                 showError("Errore di connessione con il server");
             }
@@ -216,4 +217,14 @@ public class MenuController {
             e.printStackTrace();
         }
     }
+
+    public void populateTable() {
+        try {
+            // Popola la tabella con la lista di email
+            inbox.setItems(client.mailListProperty()); // Usando direttamente la proprietà osservabile
+        } catch (Exception e) {
+            showError("Errore durante il popolamento della tabella");
+        }
+    }
+
 }

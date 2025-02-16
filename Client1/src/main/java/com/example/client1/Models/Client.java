@@ -3,30 +3,29 @@ package com.example.client1.Models;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import java.util.List;
 
 public class Client {
-    SimpleStringProperty account;
-    SimpleStringProperty sender;
-    SimpleStringProperty recipient;
-    SimpleStringProperty recipients;
-    SimpleStringProperty subject;
-    SimpleStringProperty body;
-    SimpleStringProperty date;
-    SimpleStringProperty connection;
-    ListProperty<Email> mailList;
-    BooleanProperty selected;
+    private final SimpleStringProperty account;
+    private final SimpleStringProperty sender;
+    private final ListProperty<String> recipients;
+    private final SimpleStringProperty subject;
+    private final SimpleStringProperty body;
+    private final SimpleStringProperty date;
+    private final SimpleStringProperty connection;
+    private final ListProperty<Email> mailList;
+    private final BooleanProperty selected;
 
     public Client() {
         this.account = new SimpleStringProperty();
         this.sender = new SimpleStringProperty();
-        this.recipient = new SimpleStringProperty();
-        this.recipients = new SimpleStringProperty();
+        this.recipients = new SimpleListProperty<>(FXCollections.observableArrayList());
         this.subject = new SimpleStringProperty();
         this.body = new SimpleStringProperty();
         this.date = new SimpleStringProperty();
         this.connection = new SimpleStringProperty();
         this.mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
-        this.selected= new SimpleBooleanProperty(false);
+        this.selected = new SimpleBooleanProperty(false);
     }
 
     public String getAccount() {
@@ -53,28 +52,16 @@ public class Client {
         this.sender.set(sender);
     }
 
-    public String getRecipients() {
+    public ObservableList<String> getRecipients() {
         return recipients.get();
     }
 
-    public String getRecipient() {
-        return recipient.get();
-    }
-
-    public SimpleStringProperty recipientProperty() {
-        return recipient;
-    }
-
-    public void setRecipient(String recipient) {
-        this.recipient.set(recipient);
-    }
-
-    public SimpleStringProperty recipientsProperty() {
+    public ListProperty<String> recipientsProperty() {
         return recipients;
     }
 
-    public void setRecipients(String recipients) {
-        this.recipients.set(recipients);
+    public void setRecipients(List<String> newRecipients) {
+        this.recipients.set(FXCollections.observableArrayList(newRecipients));
     }
 
     public String getSubject() {
@@ -125,16 +112,16 @@ public class Client {
         this.connection.set(connection);
     }
 
+    public ObservableList<Email> getMailList() {
+        return mailList.get();
+    }
+
     public ListProperty<Email> mailListProperty() {
         return mailList;
     }
 
-    public void setMailList(ObservableList<Email> mailList) {
-        this.mailList.set(mailList);
-    }
-
-    public ObservableList<Email> getMailList() {
-        return mailList.get();
+    public void setMailList(List<Email> newMailList) {
+        this.mailList.set(FXCollections.observableArrayList(newMailList));
     }
 
     public boolean isSelected() {
@@ -148,6 +135,4 @@ public class Client {
     public void setSelected(boolean selected) {
         this.selected.set(selected);
     }
-
 }
-

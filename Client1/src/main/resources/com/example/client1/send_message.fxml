@@ -10,9 +10,6 @@
     <!-- Campo per l'indirizzo del destinatario -->
     <TextField fx:id="recipientField" layoutX="10" layoutY="10" prefHeight="30" prefWidth="580" promptText="A" />
 
-    <!-- Campo per Cc -->
-    <TextField fx:id="ccField" layoutX="10" layoutY="50" prefHeight="30" prefWidth="285" promptText="Cc" />
-
     <!-- Campo per l'oggetto -->
     <TextField fx:id="subjectField" layoutX="10" layoutY="90" prefHeight="30" prefWidth="580" promptText="Oggetto" />
 

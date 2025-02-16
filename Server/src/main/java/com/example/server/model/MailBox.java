@@ -26,28 +26,8 @@ public class MailBox implements Serializable {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(this);
         }
-        /*try (FileOutputStream fos = new FileOutputStream(file);
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(data.toString()); // Scrive la stringa JSON nel file
-        } catch (IOException e) {
-            e.printStackTrace(); // Stampa l'errore se la scrittura fallisce
-        }*/
     }
 
-    // Deserializza la MailBox da un file JSON usando Gson
-    public static MailBox deserializeFromJson(File file) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
-        Gson gson = new Gson();
-        MailBox mailbox = gson.fromJson(content, MailBox.class);
-        return mailbox;
-    }
-
-    // Serializza la MailBox su un file JSON usando Gson
-    public void serializeToJson(File file) throws IOException {
-        Gson gson = new Gson();
-        String json = gson.toJson(this);
-        Files.write(file.toPath(), json.getBytes());
-    }
 
     public String getAccount() {
         return account;
