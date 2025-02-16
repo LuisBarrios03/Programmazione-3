@@ -189,6 +189,20 @@ public class MenuController {
         });
     }
 
+    public void logOut(ActionEvent e){
+        try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
+                Scene scene = new Scene(fxmlLoader.load());
+                Stage stage = (Stage) btn_logout.getScene().getWindow();
+                stage.setTitle("Login");
+                stage.setScene(scene);
+                stage.show();
+            System.out.println("Logout effettuato");
+        } catch (Exception ex) {
+            showError("Errore durante il logout");
+        }
+    }
+
 
     public void newEmail(ActionEvent actionEvent) {
         try {
