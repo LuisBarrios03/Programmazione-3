@@ -311,8 +311,7 @@ public class MenuController {
     public void replyFowardEmail(ActionEvent e) {
         // Filtra le email selezionate tramite la checkbox
         List<Email> selectedEmails = client.getMailList().stream()
-                .filter(Email::isSelected)
-                .collect(Collectors.toList());
+                .filter(Email::isSelected).toList();
 
         // Verifica che sia selezionata esattamente una email
         if (selectedEmails.size() != 1) {
