@@ -10,7 +10,14 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.sql.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
@@ -154,6 +161,7 @@ public class ClientHandler implements Runnable {
             }
 
             String sender = mailJson.get("sender").getAsString();
+
             if (!mailStorage.isRegisteredEmail(sender)) {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
@@ -172,7 +180,19 @@ public class ClientHandler implements Runnable {
             JsonObject response = new JsonObject();
             response.addProperty("status", "OK");
             // Serializza la lista di email con Gson
-            response.add("emails", gson.toJsonTree(mailbox.getEmails()));
+
+            List<Email> emails = mailbox.getEmails();
+
+            if(mailJson.has("lastChecked")){
+                String lastChecked = mailJson.get("lastChecked").getAsString();
+                LocalDateTime lastDate = LocalDateTime.parse(lastChecked);
+
+                emails = emails.stream()
+                        .filter(email -> email.getDate().isAfter(lastDate))
+                        .toList();
+            }
+
+            response.add("emails", gson.toJsonTree(emails));
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,6 +202,19 @@ public class ClientHandler implements Runnable {
             return response;
         }
     }
+
+
+
+    private Instant parseLastCheckedTimestamp(String lastCheckedStr) {
+        try {
+            lastCheckedStr = lastCheckedStr.substring(0, Math.min(lastCheckedStr.length(), 23)) + "Z"; // Tronca ai millisecondi
+            return Instant.parse(lastCheckedStr);
+        } catch (Exception e) {
+            return Instant.MIN;
+        }
+    }
+
+
 
 
     private JsonObject handleDeleteEmail(JsonObject request) {

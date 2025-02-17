@@ -3,6 +3,7 @@ package com.example.server.controller;
 import com.example.server.model.Email;
 import com.google.gson.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,18 +25,10 @@ public class EmailAdapter implements JsonDeserializer<Email>, JsonSerializer<Ema
         }
         String subject = jsonObject.has("subject") ? jsonObject.get("subject").getAsString() : null;
         String body = jsonObject.has("body") ? jsonObject.get("body").getAsString() : null;
-        String date = jsonObject.has("date") ? jsonObject.get("date").getAsString() : null;
+        String date = jsonObject.get("date").getAsString();
 
         // Creazione dell'oggetto Email
-        Email email = new Email();
-        email.setId(id);
-        email.setSender(sender);
-        email.setRecipients(recipients);
-        email.setSubject(subject);
-        email.setBody(body);
-        email.setDate(date);
-
-        return email;
+        return new Email(id, sender, recipients, subject, body, LocalDateTime.parse(date));
     }
 
     @Override
@@ -52,7 +45,7 @@ public class EmailAdapter implements JsonDeserializer<Email>, JsonSerializer<Ema
         jsonObject.add("recipients", recipientsArray);
         jsonObject.addProperty("subject", src.getSubject());
         jsonObject.addProperty("body", src.getBody());
-        jsonObject.addProperty("date", src.getDate());
+        jsonObject.addProperty("date", src.getDate().toString());
 
         return jsonObject;
     }

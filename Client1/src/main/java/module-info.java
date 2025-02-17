@@ -4,6 +4,7 @@ module com.example.client1 {
     requires org.json;
     requires java.desktop;
     requires com.google.gson;
+    requires java.sql;
 
     opens com.example.client1.Models to javafx.base;
 

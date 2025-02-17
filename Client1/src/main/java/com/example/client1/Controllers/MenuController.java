@@ -5,8 +5,8 @@ import com.example.client1.Models.Client;
 import com.example.client1.Models.Email;
 import com.google.gson.*;
 import javafx.application.Platform;
+import javafx.beans.property.ListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class MenuController {
     private Client client;
@@ -71,7 +70,7 @@ public class MenuController {
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
-        inbox.setItems(client.mailListProperty());
+        inbox.itemsProperty().bind(client.mailListProperty());
 
         scheduleConnectionStatusUpdates();
         updateInbox();
@@ -111,8 +110,15 @@ public class MenuController {
         JsonObject data = new JsonObject();
         JsonObject mailData = new JsonObject();
 
-        // Invia l'account del client per recuperare la mailbox
+        String date = null;
+        ListProperty<Email> emails = client.mailListProperty();
+        if(!emails.isEmpty()){
+            emails.sort(null);
+            date = emails.get(0).getDate().toString();
+        }
+
         mailData.addProperty("sender", client.getAccount());
+        mailData.addProperty("lastChecked", date);
         data.addProperty("action", "GET_MAILBOX");
         data.add("data", mailData);
 
@@ -189,8 +195,7 @@ public class MenuController {
     private void updateMailList(List<Email> emails) {
         Platform.runLater(() -> {
             System.out.println("Aggiornamento casella di posta");
-            client.setMailList(FXCollections.observableArrayList(emails));
-            inbox.setItems(client.mailListProperty());
+            client.updateMailList(emails);
             System.out.println("Casella di posta aggiornata");
         });
     }
@@ -254,7 +259,7 @@ public class MenuController {
 
     public void populateTable() {
         try {
-            inbox.setItems(client.mailListProperty());
+            //inbox.setItems(client.mailListProperty());
         } catch (Exception e) {
             showError("Errore durante il popolamento della tabella");
         }

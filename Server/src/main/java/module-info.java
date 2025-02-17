@@ -4,6 +4,7 @@ module com.example.server {
     requires java.desktop;
     requires com.google.gson;
     requires org.json;
+    requires java.sql;
 
 
     opens com.example.server to javafx.fxml;

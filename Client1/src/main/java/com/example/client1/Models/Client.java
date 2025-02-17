@@ -118,7 +118,7 @@ public class Client {
         return mailList;
     }
 
-    public void setMailList(List<Email> newMailList) {
-        this.mailList.set(FXCollections.observableArrayList(newMailList));
+    public void updateMailList(List<Email> newMailList) {
+        mailList.addAll(newMailList);
     }
 }
