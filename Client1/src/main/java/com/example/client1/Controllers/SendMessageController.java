@@ -19,9 +19,8 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -198,22 +197,20 @@ public class SendMessageController {
         messageBody.setEditable(false);
     }
 
-    public void initForwardAll(Email email) {
+    public void initReplyAll(Email email) {
+        String stringRecipients= email.getRecipients().toString().replace("[", "").replace("]", "");
+
         // Rimuove il binding per evitare conflitti
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
-        messageBody.textProperty().unbindBidirectional(client.bodyProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
-        recipientField.setText("alessio@notamail.com,luis@notamail.com,gigi@notamail.com");
+        recipientField.setText(stringRecipients);
         recipientField.setEditable(false);
 
         // Imposta l'oggetto e lo rende non modificabile
-        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "     ricevuta da: " + email.getSender());
+        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "     ricevuta da: " + stringRecipients);
         subjectField.setEditable(false);
 
-        // Imposta il contenuto della mail e lo rende non modificabile
-        messageBody.setText(email.getBody());
-        messageBody.setEditable(false);
     }
 
     public void clearAllData() {
