@@ -27,11 +27,6 @@ import java.util.stream.Collectors;
 
 import static com.example.client1.Controllers.LoginController.isValid;
 
-/**
- * Controller per l'invio di un'email.
- *
- * Questa classe gestisce l'invio di un'email, inviando i dati al server e gestendo la risposta.
- */
 public class SendMessageController {
     private Client client;
     private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
@@ -51,9 +46,6 @@ public class SendMessageController {
     @FXML
     private TextField recipientField;
 
-    /**
-     * Inizializza il controller e associa le proprietà dei campi di testo.
-     */
     public void initialize() {
         client = Application.getClient();
         subjectField.textProperty().bindBidirectional(client.subjectProperty());
@@ -76,11 +68,7 @@ public class SendMessageController {
         setButtonAction(sendButton);
     }
 
-    /**
-     * Imposta l'azione del pulsante di invio.
-     *
-     * @param button Il pulsante di invio.
-     */
+
     public void setButtonAction(Button button) {
         button.setOnAction(event -> {
             String subject = subjectField.getText();
@@ -135,11 +123,6 @@ public class SendMessageController {
         });
     }
 
-    /**
-     * Gestisce la risposta del server dopo l'invio dell'email.
-     *
-     * @param response La risposta del server.
-     */
     private void handleResponse(JsonObject response) {
         if (response.get("status").getAsString().equals("OK")) {
             showSuccess("Email inviata con successo");
@@ -150,11 +133,6 @@ public class SendMessageController {
         }
     }
 
-    /**
-     * Mostra un messaggio di successo.
-     *
-     * @param message Il messaggio di successo da visualizzare.
-     */
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Successo");
@@ -162,11 +140,6 @@ public class SendMessageController {
         alert.showAndWait();
     }
 
-    /**
-     * Mostra un messaggio di errore.
-     *
-     * @param message Il messaggio di errore da visualizzare.
-     */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Errore");
@@ -175,9 +148,6 @@ public class SendMessageController {
         alert.showAndWait();
     }
 
-    /**
-     * Carica il menu principale.
-     */
     public void loadmenu() {
         clearAllData();
         try {
@@ -193,11 +163,6 @@ public class SendMessageController {
         }
     }
 
-    /**
-     * Inizializza il campo per rispondere a un'email.
-     *
-     * @param email L'email a cui rispondere.
-     */
     public void initReply(Email email) {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
@@ -209,11 +174,6 @@ public class SendMessageController {
         recipientField.setEditable(false);
     }
 
-    /**
-     * Inizializza il campo per inoltrare un'email.
-     *
-     * @param email L'email da inoltrare.
-     */
     public void initForward(Email email) {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         messageBody.textProperty().unbindBidirectional(client.bodyProperty());
@@ -223,11 +183,6 @@ public class SendMessageController {
         messageBody.setEditable(false);
     }
 
-    /**
-     * Inizializza il campo per rispondere a tutti i destinatari di un'email.
-     *
-     * @param email L'email a cui rispondere a tutti.
-     */
     public void initReplyAll(Email email) {
         String stringRecipients= email.getRecipients().toString().replace("[", "").replace("]", "");
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
@@ -240,9 +195,6 @@ public class SendMessageController {
 
     }
 
-    /**
-     * Pulisce tutti i campi di testo.
-     */
     public void clearAllData() {
         subjectField.clear();
         messageBody.clear();

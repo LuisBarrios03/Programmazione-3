@@ -22,10 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Controller per la gestione del menu principale dell'applicazione.
- * la gestione delle email e il logout dell'utente.
- */
 public class MenuController {
     private Client client;
     private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
@@ -60,11 +56,6 @@ public class MenuController {
     @FXML
     private Label lbl_error;
 
-    /**
-     * Inizializza il controller del menu.
-     *
-     * Questo metodo viene chiamato automaticamente dopo il caricamento del file FXML.
-     */
     @FXML
     public void initialize() {
         client = Application.getClient();
@@ -91,11 +82,7 @@ public class MenuController {
         updateInbox();
     }
 
-    /**
-     * Crea una cella con checkbox per la tabella delle email.
-     *
-     * @return Una cella con checkbox.
-     */
+
     private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
             final CheckBox checkBox = new CheckBox();
@@ -120,19 +107,11 @@ public class MenuController {
         };
     }
 
-    /**
-     * Aggiorna manualmente la casella di posta.
-     *
-     * @param e L'evento di azione generato dal pulsante di aggiornamento.
-     */
     @FXML
     public void manualRefresh(ActionEvent e) {
         updateInbox();
     }
 
-    /**
-     * Aggiorna la casella di posta inviando una richiesta al server.
-     */
     public void updateInbox() {
         JsonObject data = new JsonObject();
         JsonObject mailData = new JsonObject();
@@ -161,11 +140,6 @@ public class MenuController {
         updateThread.start();
     }
 
-    /**
-     * Gestisce la risposta del server dopo l'aggiornamento della casella di posta.
-     *
-     * @param response La risposta JSON ricevuta dal server.
-     */
     private void handleInboxResponse(JsonObject response) {
         if (response.has("status") && !response.get("status").isJsonNull()
                 && response.get("status").getAsString().equals("OK")) {
@@ -217,11 +191,7 @@ public class MenuController {
         }
     }
 
-    /**
-     * Aggiorna la lista delle email nel client.
-     *
-     * @param emails La nuova lista di email.
-     */
+
     private void updateMailList(List<Email> emails) {
         Platform.runLater(() -> {
             System.out.println("Aggiornamento casella di posta");
@@ -230,18 +200,10 @@ public class MenuController {
         });
     }
 
-    /**
-     * Mostra un messaggio di errore nell'interfaccia utente.
-     *
-     * @param message Il messaggio di errore da visualizzare.
-     */
     private void showError(String message) {
         Platform.runLater(() -> lbl_error.setText(message));
     }
 
-    /**
-     * Pianifica aggiornamenti periodici dello stato della connessione.
-     */
     public void scheduleConnectionStatusUpdates() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
@@ -254,9 +216,6 @@ public class MenuController {
         }, 1, 10, TimeUnit.SECONDS);
     }
 
-    /**
-     * Aggiorna lo stato della connessione inviando una richiesta al server.
-     */
     public void updateConnectionStatus() {
         JsonObject connectionResponse = serverHandler.tryConnection();
 
@@ -271,11 +230,6 @@ public class MenuController {
         });
     }
 
-    /**
-     * Effettua il logout dell'utente e carica la schermata di login.
-     *
-     * @param e L'evento di azione generato dal pulsante di logout.
-     */
     public void logOut(ActionEvent e) {
         // 1. Resettare tutte le informazioni del client
         client.resetClient(); // Aggiungi un metodo nel tuo modello Client per resettare i dati
@@ -301,11 +255,6 @@ public class MenuController {
         }
     }
 
-    /**
-     * Carica la schermata per l'invio di una nuova email.
-     *
-     * @param e L'evento di azione generato dal pulsante per la nuova email.
-     */
     public void newEmail(ActionEvent e) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
@@ -319,9 +268,6 @@ public class MenuController {
         }
     }
 
-    /**
-     * Popola la tabella delle email.
-     */
     public void populateTable() {
         try {
         } catch (Exception e) {
@@ -329,11 +275,6 @@ public class MenuController {
         }
     }
 
-    /**
-     * Cancella le email selezionate.
-     *
-     * @param e L'evento di azione generato dal pulsante di cancellazione.
-     */
     @FXML
     public void cancelSelected(ActionEvent e) {
         client.getMailList().removeIf(email -> {
@@ -361,11 +302,6 @@ public class MenuController {
         inbox.refresh();
     }
 
-    /**
-     * Gestisce le azioni di risposta e inoltro delle email.
-     *
-     * @param e L'evento di azione generato dal pulsante di risposta o inoltro.
-     */
     @FXML
     public void replyFowardEmail(ActionEvent e) {
         List<Email> selectedEmails = client.getMailList().stream()
@@ -395,12 +331,9 @@ public class MenuController {
         }
     }
 
-    /**
-     * Seleziona tutte le email nella casella di posta.
-     *
-     * @param e L'evento di azione generato dal pulsante di selezione.
-     */
     public void selectAll(ActionEvent e){
         client.getMailList().forEach(email -> email.setSelected(true));
     }
+
+
 }
