@@ -2,8 +2,6 @@ package com.example.client1.Models;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -17,11 +15,9 @@ public class Email implements Comparable<Email> {
     private final String subject;
     private final String body;
     private final LocalDateTime date;
-    // Proprietà per la selezione nella TableView
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
     public Email(String id, String sender, List<String> recipients, String subject, String body, LocalDateTime date) {
-        // Se l'id passato è nullo, ne genera uno nuovo
         this.id = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = List.copyOf(recipients);
@@ -29,8 +25,6 @@ public class Email implements Comparable<Email> {
         this.body = body;
         this.date = date;
     }
-
-    // Getters
     public String getId() { return id; }
     public String getSender() { return sender; }
     public List<String> getRecipients() { return recipients; }
@@ -38,7 +32,6 @@ public class Email implements Comparable<Email> {
     public String getBody() { return body; }
     public LocalDateTime getDate() { return date; }
 
-    // Proprietà per il binding della selezione
     public BooleanProperty selectedProperty() {
         return selected;
     }

@@ -13,8 +13,6 @@ public class EmailAdapter implements JsonDeserializer<Email>, JsonSerializer<Ema
     @Override
     public Email deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-
-        // Estrazione dei valori dal JSON
         String id = jsonObject.has("id") ? jsonObject.get("id").getAsString() : null;
         String sender = jsonObject.has("sender") ? jsonObject.get("sender").getAsString() : null;
         List<String> recipients = new ArrayList<>();
@@ -34,8 +32,6 @@ public class EmailAdapter implements JsonDeserializer<Email>, JsonSerializer<Ema
     @Override
     public JsonElement serialize(Email src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject jsonObject = new JsonObject();
-
-        // Serializzazione dei valori
         jsonObject.addProperty("id", src.getId());
         jsonObject.addProperty("sender", src.getSender());
         JsonArray recipientsArray = new JsonArray();
@@ -49,6 +45,4 @@ public class EmailAdapter implements JsonDeserializer<Email>, JsonSerializer<Ema
 
         return jsonObject;
     }
-        
-
 }

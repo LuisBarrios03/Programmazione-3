@@ -23,8 +23,6 @@
                 <Label fx:id="lbl_error" layoutX="616.0" layoutY="70.0" text="Errore Connessione" textFill="RED" visible="false" />
             </children>
         </AnchorPane>
-
-        <!-- Email Detail and Actions -->
         <AnchorPane fx:id="pane_email_detail" layoutX="10.0" layoutY="118.0" prefHeight="485.0" prefWidth="773.0">
             <children>
                 <TableView fx:id="inbox" layoutX="7.0" layoutY="22.0" prefHeight="442.0" prefWidth="464.0">
@@ -41,13 +39,9 @@
                         </TableColumn>
                     </columns>
                 </TableView>
-
-                <!-- Email Content Display -->
                 <ScrollPane layoutX="480.0" layoutY="22.0" prefHeight="287.0" prefWidth="280.0">
                     <TextArea fx:id="textemail" editable="false" prefHeight="271.0" prefWidth="478.0" wrapText="true" />
                 </ScrollPane>
-
-                <!-- Action Buttons -->
                 <Button fx:id="btn_rispondi" layoutX="697.0" layoutY="320.0" onAction="#replyFowardEmail" text="Rispondi" />
                 <Button fx:id="btn_rispondiTutti" layoutX="660.0" layoutY="352.0" onAction="#replyFowardEmail" text="Rispondi a Tutti" />
                 <Button fx:id="btn_inoltra" layoutX="710.0" layoutY="384.0" onAction="#replyFowardEmail" text="Inoltra" />
