@@ -12,9 +12,9 @@ import java.net.Socket;
  * Questa classe si occupa di inviare comandi al server e ricevere risposte.
  */
 public class ServerHandler {
-    private final int serverPort;
-    private final String serverAddress;
-    private final Gson gson = new Gson();
+    private final int serverPort;  /// La porta del server
+    private final String serverAddress;  /// L'indirizzo del server
+    private final Gson gson = new Gson();  /// Oggetto Gson per la serializzazione/deserializzazione JSON
 
     /**
      * Costruttore della classe ServerHandler.
@@ -35,19 +35,20 @@ public class ServerHandler {
      * @throws IOException Se si verifica un errore di I/O durante la comunicazione con il server.
      */
     public JsonObject sendCommand(JsonObject data) throws IOException {
-        try (Socket socket = new Socket(serverAddress, serverPort);
-             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"))) {
-            String jsonString = gson.toJson(data);
-            out.println(jsonString);
-            String responseLine = in.readLine();
+        try (Socket socket = new Socket(serverAddress, serverPort);  /// Connessione al server
+             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);  /// Scrittura nel socket
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"))) {  /// Lettura dal socket
+            String jsonString = gson.toJson(data);  /// Serializzazione del comando in formato JSON
+            out.println(jsonString);  /// Invia il comando al server
+            String responseLine = in.readLine();  /// Legge la risposta dal server
             if (responseLine != null && !responseLine.isEmpty()) {
-                return JsonParser.parseString(responseLine).getAsJsonObject();
+                return JsonParser.parseString(responseLine).getAsJsonObject();  /// Restituisce la risposta del server come oggetto JSON
             } else {
+                // Se non viene ricevuta risposta, crea un oggetto di errore
                 JsonObject errorResponse = new JsonObject();
                 errorResponse.addProperty("status", "ERRORE");
                 errorResponse.addProperty("message", "Nessuna risposta dal server");
-                return errorResponse;
+                return errorResponse;  /// Restituisce la risposta di errore
             }
         }
     }
@@ -59,13 +60,14 @@ public class ServerHandler {
      */
     public JsonObject tryConnection() {
         JsonObject response = new JsonObject();
-        try (Socket socket = new Socket(serverAddress, serverPort)) {
+        try (Socket socket = new Socket(serverAddress, serverPort)) {  /// Tentativo di connessione al server
             response.addProperty("status", "OK");
-            response.addProperty("message", "Connesso al server con successo.");
+            response.addProperty("message", "Connesso al server con successo.");  /// Risposta positiva se la connessione è riuscita
         } catch (IOException e) {
+            // Se la connessione fallisce, restituisce un messaggio di errore
             response.addProperty("status", "ERRORE");
             response.addProperty("message", "Impossibile connettersi al server: " + e.getMessage());
         }
-        return response;
+        return response;  /// Restituisce lo stato della connessione
     }
 }

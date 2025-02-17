@@ -4,8 +4,10 @@ import com.example.client1.Application;
 import com.example.client1.Models.Client;
 import com.example.client1.Models.Email;
 import com.google.gson.*;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +29,9 @@ public class MenuController {
     private Client client;
     private final ServerHandler serverHandler = new ServerHandler(5000, "localhost");
     private ScheduledExecutorService scheduler;
+
+    // Definisci un PauseTransition per il messaggio "Nuove Email"
+    private PauseTransition pauseTransition = new PauseTransition(Duration.seconds(5));
 
     @FXML
     private Label lbl_menu_title;
@@ -55,6 +61,8 @@ public class MenuController {
     private Button btn_rispondiTutti;
     @FXML
     private Label lbl_error;
+    @FXML
+    private Label lbl_nuoveEmails;
 
     @FXML
     public void initialize() {
@@ -66,6 +74,24 @@ public class MenuController {
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
         inbox.itemsProperty().bind(client.mailListProperty());
+
+        // Aggiungi un listener per rilevare l'arrivo di nuove email
+        client.getMailList().addListener((ListChangeListener<Email>) change -> {
+            while (change.next()) {
+                if (change.wasAdded() && !change.getAddedSubList().isEmpty()) {
+                    Platform.runLater(() -> {
+                        lbl_nuoveEmails.setText("Hai delle nuove emails.");
+                        lbl_nuoveEmails.setVisible(true);
+
+                        // Reset del timer: se il timer era già in esecuzione, lo fermiamo e lo ripartiamo
+                        pauseTransition.stop();
+                        pauseTransition.setOnFinished(event -> lbl_nuoveEmails.setVisible(false));
+                        pauseTransition.playFromStart();
+                    });
+                }
+            }
+        });
+
         inbox.getSelectionModel().selectedItemProperty().addListener((obs, oldEmail, selectedEmail) -> {
             if (selectedEmail != null) {
                 String content = String.format("Mittente: %s\nDestinatari: %s\nOggetto: %s\n\nTesto: %s\nData: %s",
@@ -81,7 +107,6 @@ public class MenuController {
         scheduleConnectionStatusUpdates();
         updateInbox();
     }
-
 
     private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
@@ -118,7 +143,7 @@ public class MenuController {
 
         String date = null;
         ListProperty<Email> emails = client.mailListProperty();
-        if(!emails.isEmpty()){
+        if (!emails.isEmpty()) {
             emails.sort(null);
             date = emails.get(0).getDate().toString();
         }
@@ -153,8 +178,7 @@ public class MenuController {
             JsonArray mailList = null;
             if (dataElement.isJsonArray()) {
                 mailList = dataElement.getAsJsonArray();
-            }
-            else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
+            } else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
                 String jsonString = dataElement.getAsString();
                 try {
                     mailList = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -190,7 +214,6 @@ public class MenuController {
             showError("Errore durante l'aggiornamento della casella di posta: " + errorMsg);
         }
     }
-
 
     private void updateMailList(List<Email> emails) {
         Platform.runLater(() -> {
@@ -231,17 +254,22 @@ public class MenuController {
     }
 
     public void logOut(ActionEvent e) {
-        // 1. Resettare tutte le informazioni del client
+        // 1. Fermare la schedulazione periodica
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();  // Interrompe la pianificazione dei task periodici
+        }
+
+        // 2. Resettare tutte le informazioni del client
         client.resetClient(); // Aggiungi un metodo nel tuo modello Client per resettare i dati
 
-        // 2. Svuotare la lista delle e-mail
+        // 3. Svuotare la lista delle e-mail
         client.getMailList().clear();  // Azzera la lista delle e-mail
 
-        // 3. Azzerare le informazioni della connessione
+        // 4. Azzerare le informazioni della connessione
         client.setConnection("OFF");
         lbl_connessione.setText("Stato Connessione: Offline");
 
-        // 4. Reimpostare l'interfaccia utente (schermata di login)
+        // 5. Reimpostare l'interfaccia utente (schermata di login)
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -270,6 +298,7 @@ public class MenuController {
 
     public void populateTable() {
         try {
+            // Implementa la logica per il popolamento della tabella se necessario.
         } catch (Exception e) {
             showError("Errore durante il popolamento della tabella");
         }
@@ -319,7 +348,7 @@ public class MenuController {
                 controller.initReply(selectedEmail);
             } else if (e.getSource() == btn_inoltra) {
                 controller.initForward(selectedEmail);
-            } else if (e.getSource() == btn_rispondiTutti){
+            } else if (e.getSource() == btn_rispondiTutti) {
                 controller.initReplyAll(selectedEmail);
             }
 
@@ -331,9 +360,7 @@ public class MenuController {
         }
     }
 
-    public void selectAll(ActionEvent e){
+    public void selectAll(ActionEvent e) {
         client.getMailList().forEach(email -> email.setSelected(true));
     }
-
-
 }

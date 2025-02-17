@@ -8,23 +8,24 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * La classe Email rappresenta un'email con mittente, destinatari, oggetto, corpo e data.
- * Implementa l'interfaccia Comparable per consentire l'ordinamento delle email in base alla data.
+ * La classe Email rappresenta un'email con il mittente, destinatari, oggetto, corpo e data di invio.
+ * Implementa l'interfaccia Comparable per consentire l'ordinamento delle email in base alla data di invio.
  */
 public class Email implements Comparable<Email> {
 
-    private final String id;
-    private final String sender;
-    private final List<String> recipients;
-    private final String subject;
-    private final String body;
-    private final LocalDateTime date;
-    private final BooleanProperty selected = new SimpleBooleanProperty(false);
+    private final String id;  /// ID univoco dell'email
+    private final String sender;  /// Mittente dell'email
+    private final List<String> recipients;  /// Lista dei destinatari
+    private final String subject;  /// Oggetto dell'email
+    private final String body;  /// Corpo dell'email
+    private final LocalDateTime date;  /// Data di invio dell'email
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);  /// Proprietà che rappresenta se l'email è selezionata
 
     /**
      * Costruttore della classe Email.
+     * Se l'ID è nullo o vuoto, viene generato un UUID casuale.
      *
-     * @param id         l'ID dell'email, se nullo o vuoto viene generato un UUID casuale
+     * @param id         l'ID dell'email
      * @param sender     il mittente dell'email
      * @param recipients la lista dei destinatari dell'email
      * @param subject    l'oggetto dell'email
@@ -32,9 +33,9 @@ public class Email implements Comparable<Email> {
      * @param date       la data di invio dell'email
      */
     public Email(String id, String sender, List<String> recipients, String subject, String body, LocalDateTime date) {
-        this.id = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();
+        this.id = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();  /// Genera un ID unico se non specificato
         this.sender = sender;
-        this.recipients = List.copyOf(recipients);
+        this.recipients = List.copyOf(recipients);  /// Crea una copia immutabile della lista dei destinatari
         this.subject = subject;
         this.body = body;
         this.date = date;
@@ -57,7 +58,7 @@ public class Email implements Comparable<Email> {
     /**
      * Restituisce la lista dei destinatari dell'email.
      *
-     * @return la lista dei destinatari dell'email
+     * @return la lista dei destinatari
      */
     public List<String> getRecipients() { return recipients; }
 
@@ -78,14 +79,14 @@ public class Email implements Comparable<Email> {
     /**
      * Restituisce la data di invio dell'email.
      *
-     * @return la data di invio dell'email
+     * @return la data dell'email
      */
     public LocalDateTime getDate() { return date; }
 
     /**
-     * Restituisce la proprietà selected dell'email.
+     * Restituisce la proprietà "selected" dell'email, che rappresenta se l'email è selezionata.
      *
-     * @return la proprietà selected dell'email
+     * @return la proprietà BooleanProperty "selected"
      */
     public BooleanProperty selectedProperty() {
         return selected;
@@ -103,7 +104,7 @@ public class Email implements Comparable<Email> {
     /**
      * Imposta lo stato di selezione dell'email.
      *
-     * @param selected lo stato di selezione dell'email
+     * @param selected lo stato di selezione da impostare
      */
     public void setSelected(boolean selected) {
         this.selected.set(selected);
@@ -111,6 +112,7 @@ public class Email implements Comparable<Email> {
 
     /**
      * Restituisce una rappresentazione in formato stringa dell'email.
+     * La rappresentazione include l'ID, mittente, destinatari, oggetto, data e corpo dell'email.
      *
      * @return una stringa che rappresenta l'email
      */
@@ -121,15 +123,16 @@ public class Email implements Comparable<Email> {
     }
 
     /**
-     * Verifica se l'oggetto specificato è uguale a questa email.
+     * Confronta questa email con un'altra email per determinare se sono uguali.
+     * Le email sono considerate uguali se hanno lo stesso ID, mittente, destinatari, oggetto, corpo e data.
      *
      * @param o l'oggetto da confrontare
-     * @return true se l'oggetto specificato è uguale a questa email, false altrimenti
+     * @return true se l'oggetto è uguale all'email corrente, false altrimenti
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Email)) return false;
+        if (this == o) return true;  /// Se l'oggetto è lo stesso, sono uguali
+        if (!(o instanceof Email)) return false;  /// Se l'oggetto non è un'istanza di Email, sono diversi
         Email email = (Email) o;
         return Objects.equals(id, email.id) &&
                 Objects.equals(sender, email.sender) &&
@@ -141,12 +144,13 @@ public class Email implements Comparable<Email> {
 
     /**
      * Confronta questa email con un'altra email in base alla data.
+     * La comparazione avviene in ordine decrescente, in modo che le email più recenti vengano ordinate per prime.
      *
      * @param o l'email da confrontare
-     *         precedente, uguale o successiva all'altra email
+     * @return un valore negativo, zero o positivo a seconda che questa email sia precedente, uguale o successiva all'altra email
      */
     @Override
     public int compareTo(Email o) {
-        return o.date.compareTo(date);
+        return o.date.compareTo(date);  /// Ordinamento basato sulla data in ordine decrescente
     }
 }

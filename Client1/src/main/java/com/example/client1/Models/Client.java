@@ -5,16 +5,23 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.List;
 
+/**
+ * La classe Client rappresenta un cliente di posta elettronica con informazioni come account,
+ * mittente, destinatari, oggetto, corpo del messaggio, data, stato della connessione e una lista di email.
+ */
 public class Client {
-    private final SimpleStringProperty account;
-    private final SimpleStringProperty sender;
-    private final ListProperty<String> recipients;
-    private final SimpleStringProperty subject;
-    private final SimpleStringProperty body;
-    private final SimpleStringProperty date;
-    private final SimpleStringProperty connection;
-    private final ListProperty<Email> mailList;
+    private final SimpleStringProperty account;  /// Proprietà per l'account del cliente
+    private final SimpleStringProperty sender;  /// Proprietà per il mittente dell'email
+    private final ListProperty<String> recipients;  /// Proprietà per la lista dei destinatari
+    private final SimpleStringProperty subject;  /// Proprietà per l'oggetto dell'email
+    private final SimpleStringProperty body;  /// Proprietà per il corpo dell'email
+    private final SimpleStringProperty date;  /// Proprietà per la data dell'email
+    private final SimpleStringProperty connection;  /// Proprietà per lo stato di connessione
+    private final ListProperty<Email> mailList;  /// Proprietà per la lista delle email
 
+    /**
+     * Costruttore della classe Client che inizializza tutte le proprietà con valori di default.
+     */
     public Client() {
         this.account = new SimpleStringProperty();
         this.sender = new SimpleStringProperty();
@@ -25,6 +32,8 @@ public class Client {
         this.connection = new SimpleStringProperty();
         this.mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
     }
+
+    /// Getter e setter per le proprietà
 
     public String getAccount() {
         return account.get();
@@ -118,16 +127,25 @@ public class Client {
         return mailList;
     }
 
+    /**
+     * Aggiunge una lista di email alla lista corrente di email.
+     *
+     * @param newMailList la nuova lista di email da aggiungere
+     */
     public void updateMailList(List<Email> newMailList) {
         mailList.addAll(newMailList);
     }
 
+    /**
+     * Resetta tutte le proprietà del client.
+     * Resetta le proprietà stringa e svuota la lista delle email.
+     */
     public void resetClient() {
-        // Reset delle proprietà stringa
-        this.account.set("");  // Resetta l'account
-        this.connection.set("OFF");  // Resetta lo stato della connessione
+        /// Reset delle proprietà stringa
+        this.account.set("");  /// Resetta l'account
+        this.connection.set("OFF");  /// Resetta lo stato della connessione
 
-        // Reset della lista di email
-        this.mailList.clear();  // Svuota la lista di email
+        /// Reset della lista di email
+        this.mailList.clear();  /// Svuota la lista di email
     }
 }
