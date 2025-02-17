@@ -2,6 +2,7 @@ package com.example.client1.Controllers;
 
 import com.example.client1.Application;
 import com.example.client1.Models.Client;
+import com.example.client1.Models.Email;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
@@ -109,7 +110,7 @@ public class SendMessageController {
                     mailData.add("recipients", recipientsArray);
 
                     mailData.addProperty("subject", subject);
-                    mailData.addProperty("content", message);
+                    mailData.addProperty("body", message);
                     mailData.addProperty("date", LocalDateTime.now().toString());
                     JsonObject data = new JsonObject();
                     data.addProperty("action", "SEND_EMAIL");
@@ -170,6 +171,49 @@ public class SendMessageController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void initReply(Email email) {
+        subjectField.textProperty().unbindBidirectional(client.subjectProperty());
+        recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
+
+        subjectField.setText("Risposta dell'Email: " + email.getSubject() + " ricevuta da: "+ email.getSender());
+        subjectField.setEditable(false);
+
+        recipientField.setText(email.getSender());
+        recipientField.setEditable(false);
+    }
+
+    public void initForward(Email email) {
+        // Rimuove il binding per evitare conflitti
+        subjectField.textProperty().unbindBidirectional(client.subjectProperty());
+        messageBody.textProperty().unbindBidirectional(client.bodyProperty());
+
+        // Imposta l'oggetto e lo rende non modificabile
+        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "      ricevuta da: " + email.getSender());
+        subjectField.setEditable(false);
+
+        // Imposta il contenuto della mail e lo rende non modificabile
+        messageBody.setText(email.getBody());
+        messageBody.setEditable(false);
+    }
+
+    public void initForwardAll(Email email) {
+        // Rimuove il binding per evitare conflitti
+        subjectField.textProperty().unbindBidirectional(client.subjectProperty());
+        messageBody.textProperty().unbindBidirectional(client.bodyProperty());
+        recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
+
+        recipientField.setText("alessio@notamail.com,luis@notamail.com,gigi@notamail.com");
+        recipientField.setEditable(false);
+
+        // Imposta l'oggetto e lo rende non modificabile
+        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "     ricevuta da: " + email.getSender());
+        subjectField.setEditable(false);
+
+        // Imposta il contenuto della mail e lo rende non modificabile
+        messageBody.setText(email.getBody());
+        messageBody.setEditable(false);
     }
 
     public void clearAllData() {

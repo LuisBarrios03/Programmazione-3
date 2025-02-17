@@ -64,17 +64,32 @@ public class MenuController {
         lbl_connessione.setText("Stato Connessione: Online");
         lbl_connessione.setVisible(true);
 
-        // Imposta il binding corretto: "subject" corrisponde a getSubject() in Email
+        // Imposta il binding per il titolo e la checkbox
         inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("subject"));
-        // La colonna per la selezione ora utilizza Email e il suo selectedProperty
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
         inbox.itemsProperty().bind(client.mailListProperty());
 
+        // Aggiungi il listener per la selezione delle righe nella TableView
+        inbox.getSelectionModel().selectedItemProperty().addListener((obs, oldEmail, selectedEmail) -> {
+            if (selectedEmail != null) {
+                // Assicurati che i metodi getSender(), getRecipients(), getSubject(), getBody() e getDate()
+                // corrispondano ai nomi dei metodi definiti nella tua classe Email
+                String content = String.format("Mittente: %s\nDestinatari: %s\nOggetto: %s\n\nTesto: %s\nData: %s",
+                        selectedEmail.getSender(),
+                        selectedEmail.getRecipients(),
+                        selectedEmail.getSubject(),
+                        selectedEmail.getBody(),
+                        selectedEmail.getDate());
+                textemail.setText(content);
+            }
+        });
+
         scheduleConnectionStatusUpdates();
         updateInbox();
     }
+
 
     private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
@@ -213,7 +228,7 @@ public class MenuController {
             } catch (Exception e) {
                 showError("Errore di connessione con il server");
             }
-        }, 1, 5, TimeUnit.SECONDS);
+        }, 1, 10, TimeUnit.SECONDS);
     }
 
     public void updateConnectionStatus() {
@@ -244,16 +259,16 @@ public class MenuController {
         }
     }
 
-    public void newEmail(ActionEvent actionEvent) {
+    public void newEmail(ActionEvent e) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) btn_nuovamail.getScene().getWindow();
-            stage.setTitle("Menu");
+            stage.setTitle("Invio Messaggio");
             stage.setScene(scene);
             stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -291,5 +306,45 @@ public class MenuController {
         });
         inbox.refresh();
     }
+
+    @FXML
+    public void replyFowardEmail(ActionEvent e) {
+        // Filtra le email selezionate tramite la checkbox
+        List<Email> selectedEmails = client.getMailList().stream()
+                .filter(Email::isSelected)
+                .collect(Collectors.toList());
+
+        // Verifica che sia selezionata esattamente una email
+        if (selectedEmails.size() != 1) {
+            showError("Seleziona una sola email per rispondere/inoltrare.");
+            return;
+        }
+
+        Email selectedEmail = selectedEmails.get(0);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+
+            // Recupera il controller del form di invio messaggio
+            SendMessageController controller = fxmlLoader.getController();
+
+            // Controlla quale bottone ha innescato l'evento
+            if (e.getSource() == btn_rispondi) {
+                controller.initReply(selectedEmail);
+            } else if (e.getSource() == btn_inoltra) {
+                controller.initForward(selectedEmail);
+            } else if (e.getSource() == btn_inoltratutti){
+                controller.initForwardAll(selectedEmail);
+            }
+
+            Stage stage = (Stage) ((Button) e.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            showError("Errore durante la gestione della richiesta.");
+        }
+    }
+
 
 }
