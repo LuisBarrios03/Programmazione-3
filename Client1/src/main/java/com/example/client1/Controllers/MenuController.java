@@ -64,17 +64,32 @@ public class MenuController {
         lbl_connessione.setText("Stato Connessione: Online");
         lbl_connessione.setVisible(true);
 
-        // Imposta il binding corretto: "subject" corrisponde a getSubject() in Email
+        // Imposta il binding per il titolo e la checkbox
         inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("subject"));
-        // La colonna per la selezione ora utilizza Email e il suo selectedProperty
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
         inbox.setItems(client.mailListProperty());
 
+        // Aggiungi il listener per la selezione delle righe nella TableView
+        inbox.getSelectionModel().selectedItemProperty().addListener((obs, oldEmail, selectedEmail) -> {
+            if (selectedEmail != null) {
+                // Assicurati che i metodi getSender(), getRecipients(), getSubject(), getBody() e getDate()
+                // corrispondano ai nomi dei metodi definiti nella tua classe Email
+                String content = String.format("Mittente: %s\nDestinatari: %s\nOggetto: %s\n\nTesto: %s\nData: %s",
+                        selectedEmail.getSender(),
+                        selectedEmail.getRecipients(),
+                        selectedEmail.getSubject(),
+                        selectedEmail.getBody(),
+                        selectedEmail.getDate());
+                textemail.setText(content);
+            }
+        });
+
         scheduleConnectionStatusUpdates();
         updateInbox();
     }
+
 
     private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
