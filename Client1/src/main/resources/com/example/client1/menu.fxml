@@ -48,9 +48,9 @@
                 </ScrollPane>
 
                 <!-- Action Buttons -->
-                <Button fx:id="btn_rispondi"  layoutX="697.0" layoutY="320.0" text="Rispondi" />
-                <Button fx:id="btn_inoltra"  layoutX="709.0" layoutY="355.0" text="Inoltra" />
-                <Button fx:id="btn_inoltratutti"  layoutX="671.0" layoutY="390.0" text="Inoltra a Tutti" />
+                <Button fx:id="btn_rispondi" layoutX="697.0" onAction="#replyFowardEmail" layoutY="320.0" text="Rispondi" />
+                <Button fx:id="btn_inoltra" layoutX="709.0" onAction="#replyFowardEmail" layoutY="355.0" text="Inoltra" />
+                <Button fx:id="btn_inoltratutti"  layoutX="671.0" onAction="#replyFowardEmail" layoutY="390.0" text="Inoltra a Tutti" />
             </children>
         </AnchorPane>
     </children>

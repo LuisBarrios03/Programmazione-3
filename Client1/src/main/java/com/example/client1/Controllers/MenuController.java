@@ -6,7 +6,6 @@ import com.example.client1.Models.Email;
 import com.google.gson.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -208,7 +207,7 @@ public class MenuController {
             } catch (Exception e) {
                 showError("Errore di connessione con il server");
             }
-        }, 1, 5, TimeUnit.SECONDS);
+        }, 1, 10, TimeUnit.SECONDS);
     }
 
     public void updateConnectionStatus() {
@@ -239,16 +238,16 @@ public class MenuController {
         }
     }
 
-    public void newEmail(ActionEvent actionEvent) {
+    public void newEmail(ActionEvent e) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) btn_nuovamail.getScene().getWindow();
-            stage.setTitle("Menu");
+            stage.setTitle("Invio Messaggio");
             stage.setScene(scene);
             stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -286,5 +285,45 @@ public class MenuController {
         });
         inbox.refresh();
     }
+
+    @FXML
+    public void replyFowardEmail(ActionEvent e) {
+        // Filtra le email selezionate tramite la checkbox
+        List<Email> selectedEmails = client.getMailList().stream()
+                .filter(Email::isSelected)
+                .collect(Collectors.toList());
+
+        // Verifica che sia selezionata esattamente una email
+        if (selectedEmails.size() != 1) {
+            showError("Seleziona una sola email per rispondere/inoltrare.");
+            return;
+        }
+
+        Email selectedEmail = selectedEmails.get(0);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+
+            // Recupera il controller del form di invio messaggio
+            SendMessageController controller = fxmlLoader.getController();
+
+            // Controlla quale bottone ha innescato l'evento
+            if (e.getSource() == btn_rispondi) {
+                controller.initReply(selectedEmail);
+            } else if (e.getSource() == btn_inoltra) {
+                controller.initForward(selectedEmail);
+            } else if (e.getSource() == btn_inoltratutti){
+                controller.initForwardAll(selectedEmail);
+            }
+
+            Stage stage = (Stage) ((Button) e.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            showError("Errore durante la gestione della richiesta.");
+        }
+    }
+
 
 }
