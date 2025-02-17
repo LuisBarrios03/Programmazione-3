@@ -6,15 +6,34 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Classe per gestire la comunicazione con il server.
+ *
+ * Questa classe si occupa di inviare comandi al server e ricevere risposte.
+ */
 public class ServerHandler {
     private final int serverPort;
     private final String serverAddress;
     private final Gson gson = new Gson();
 
+    /**
+     * Costruttore della classe ServerHandler.
+     *
+     * @param serverPort La porta del server.
+     * @param serverAddress L'indirizzo del server.
+     */
     public ServerHandler(int serverPort, String serverAddress) {
         this.serverPort = serverPort;
         this.serverAddress = serverAddress;
     }
+
+    /**
+     * Invia un comando al server e riceve la risposta.
+     *
+     * @param data Il comando da inviare al server in formato JSON.
+     * @return La risposta del server in formato JSON.
+     * @throws IOException Se si verifica un errore di I/O durante la comunicazione con il server.
+     */
     public JsonObject sendCommand(JsonObject data) throws IOException {
         try (Socket socket = new Socket(serverAddress, serverPort);
              PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
@@ -32,6 +51,12 @@ public class ServerHandler {
             }
         }
     }
+
+    /**
+     * Tenta di connettersi al server e restituisce lo stato della connessione.
+     *
+     * @return Un oggetto JSON contenente lo stato della connessione.
+     */
     public JsonObject tryConnection() {
         JsonObject response = new JsonObject();
         try (Socket socket = new Socket(serverAddress, serverPort)) {
