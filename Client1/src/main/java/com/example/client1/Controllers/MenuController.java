@@ -55,6 +55,9 @@ public class MenuController {
     private Button btn_rispondiTutti;
     @FXML
     private Label lbl_error;
+    @FXML
+    private Label lbl_nuoveEmails;
+
 
     @FXML
     public void initialize() {
@@ -177,9 +180,16 @@ public class MenuController {
                     }
                 }
                 updateMailList(emails);
+
+                // Aggiorna il numero di nuove email nella label
+                Platform.runLater(() -> {
+                    lbl_nuoveEmails.setText("Hai " + emails.size() + " nuove email.");
+                    lbl_nuoveEmails.setVisible(true);
+                });
             } else {
                 updateMailList(new ArrayList<>());
                 showError("La casella di posta è vuota.");
+                Platform.runLater(() -> lbl_nuoveEmails.setVisible(false));
             }
 
         } else {
@@ -190,7 +200,6 @@ public class MenuController {
             showError("Errore durante l'aggiornamento della casella di posta: " + errorMsg);
         }
     }
-
 
     private void updateMailList(List<Email> emails) {
         Platform.runLater(() -> {
