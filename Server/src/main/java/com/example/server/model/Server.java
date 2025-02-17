@@ -21,11 +21,9 @@ public class Server {
         this.threadPool = Executors.newCachedThreadPool();
     }
 
-    // Metodo per avviare il server
     public void start() {
         serverThread = new Thread(() -> {
             try {
-                // Crea i file .bin per gli account se non esistono all'avvio
                 mailStorage.createMailBoxesIfNotExist();
 
                 serverSocket = new ServerSocket(port);
@@ -48,7 +46,6 @@ public class Server {
         serverThread.start();
     }
 
-    // Metodo per fermare il server
     public void stop() {
         running = false;
         if (serverSocket != null && !serverSocket.isClosed()) {
@@ -62,19 +59,12 @@ public class Server {
         }
     }
 
-    // Metodo per iniziare a ricevere nuove connessioni
     public void startReceiving() {
         running = true;
         start();
     }
 
-    // Metodo per terminare il server
     public void stopReceiving() {
         stop();
-    }
-
-    // Verifica se una mail è registrata
-    public boolean isEmailRegistered(String email) {
-        return mailStorage.isRegisteredEmail(email);
     }
 }

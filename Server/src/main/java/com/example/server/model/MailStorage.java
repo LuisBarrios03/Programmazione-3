@@ -15,11 +15,9 @@ public class MailStorage {
             directory.mkdirs();
         }
 
-        // Creazione dei file .bin all'avvio se non esistono
         createMailBoxesIfNotExist();
     }
 
-    // Crea i file .bin per gli utenti se non esistono all'avvio
     public void createMailBoxesIfNotExist() {
         String[] requiredAccounts = {"alessio@notamail.com", "luis@notamail.com", "gigi@notamail.com"};
 
@@ -27,7 +25,6 @@ public class MailStorage {
             File accountFile = new File(directory, account + ".bin");
             if (!accountFile.exists()) {
                 try {
-                    // Crea un nuovo file vuoto se non esiste
                     accountFile.createNewFile();
                     System.out.println("File creato per: " + account);
                 } catch (IOException e) {
@@ -37,13 +34,11 @@ public class MailStorage {
         }
     }
 
-    // Restituisce un lock specifico per un account
     private ReadWriteLock getLockForAccount(String account) {
         locks.putIfAbsent(account, new ReentrantReadWriteLock());
         return locks.get(account);
     }
 
-    // Salva la MailBox sul file "account.bin"
     public  void saveMailBox(MailBox mailbox) throws IOException {
         String account = mailbox.getAccount();
         ReadWriteLock lock = getLockForAccount(account);
@@ -62,27 +57,25 @@ public class MailStorage {
     public MailBox loadMailBox(String email) {
         File mailBoxFile = new File(directory, email + ".bin");
 
-        // Controlla se il file esiste prima di provare a caricarlo
         if (!mailBoxFile.exists()) {
             System.out.println("File per la mailbox " + email + " non trovato.");
-            return new MailBox(email);  // Ritorna una MailBox vuota se il file non esiste
+            return new MailBox(email);
         }
 
-        // Se il file è vuoto, ritorna una MailBox vuota
         if (mailBoxFile.length() == 0) {
             System.out.println("File vuoto per la mailbox: " + email);
-            return new MailBox(email);  // Ritorna una MailBox vuota se il file è vuoto
+            return new MailBox(email);
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(mailBoxFile))) {
             return (MailBox) ois.readObject();
         } catch (EOFException e) {
             System.out.println("File vuoto o corrotto per la mailbox: " + email);
-            return new MailBox(email);  // In caso di errore di deserializzazione, ritorna una MailBox vuota
+            return new MailBox(email);
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Errore durante la deserializzazione della mailbox per: " + email);
             e.printStackTrace();
-            return new MailBox(email);  // Ritorna una MailBox vuota in caso di errore
+            return new MailBox(email);
         }
     }
 

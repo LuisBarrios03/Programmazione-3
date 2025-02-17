@@ -151,12 +151,9 @@ public class MenuController {
 
             JsonElement dataElement = response.get("emails");
             JsonArray mailList = null;
-
-            // Se "data" è un array
             if (dataElement.isJsonArray()) {
                 mailList = dataElement.getAsJsonArray();
             }
-            // Se "data" è una stringa JSON, prova a convertirla
             else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
                 String jsonString = dataElement.getAsString();
                 try {
