@@ -82,6 +82,11 @@ public class SendMessageController {
                 showError("Devi specificare almeno un destinatario.");
                 return;
             }
+            if (subject.isEmpty()) {
+                showError("Devi specificare un oggetto.");
+                return;
+
+            }
             Thread thread = new Thread(() -> {
                 try {
                     // Crea il JSON utilizzando Gson

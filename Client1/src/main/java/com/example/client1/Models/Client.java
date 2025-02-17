@@ -121,4 +121,13 @@ public class Client {
     public void updateMailList(List<Email> newMailList) {
         mailList.addAll(newMailList);
     }
+
+    public void resetClient() {
+        // Reset delle proprietà stringa
+        this.account.set("");  // Resetta l'account
+        this.connection.set("OFF");  // Resetta lo stato della connessione
+
+        // Reset della lista di email
+        this.mailList.clear();  // Svuota la lista di email
+    }
 }
