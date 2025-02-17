@@ -4,10 +4,19 @@ import java.io.*;
 import java.util.concurrent.locks.*;
 import java.util.concurrent.*;
 
+/**
+ * La classe MailStorage gestisce la memorizzazione e il recupero delle mailbox degli utenti.
+ * Utilizza una mappa concorrente per gestire i lock di lettura/scrittura per ogni account email.
+ */
 public class MailStorage {
     private final File directory;
     private final ConcurrentHashMap<String, ReentrantReadWriteLock> locks;
 
+    /**
+     * Costruttore della classe MailStorage.
+     *
+     * @param directory la directory in cui memorizzare le mailbox
+     */
     public MailStorage(File directory) {
         this.directory = directory;
         this.locks = new ConcurrentHashMap<>();
@@ -18,6 +27,9 @@ public class MailStorage {
         createMailBoxesIfNotExist();
     }
 
+    /**
+     * Crea le mailbox per gli account richiesti se non esistono.
+     */
     public void createMailBoxesIfNotExist() {
         String[] requiredAccounts = {"alessio@notamail.com", "luis@notamail.com", "gigi@notamail.com"};
 
@@ -34,12 +46,24 @@ public class MailStorage {
         }
     }
 
+    /**
+     * Ottiene il lock di lettura/scrittura per un account email.
+     *
+     * @param account l'account email per cui ottenere il lock
+     * @return il lock di lettura/scrittura per l'account
+     */
     private ReadWriteLock getLockForAccount(String account) {
         locks.putIfAbsent(account, new ReentrantReadWriteLock());
         return locks.get(account);
     }
 
-    public  void saveMailBox(MailBox mailbox) throws IOException {
+    /**
+     * Salva una mailbox su disco.
+     *
+     * @param mailbox la mailbox da salvare
+     * @throws IOException se si verifica un errore durante il salvataggio
+     */
+    public void saveMailBox(MailBox mailbox) throws IOException {
         String account = mailbox.getAccount();
         ReadWriteLock lock = getLockForAccount(account);
         lock.writeLock().lock();
@@ -54,6 +78,12 @@ public class MailStorage {
         }
     }
 
+    /**
+     * Carica una mailbox da disco.
+     *
+     * @param email l'email dell'account per cui caricare la mailbox
+     * @return la mailbox caricata
+     */
     public MailBox loadMailBox(String email) {
         File mailBoxFile = new File(directory, email + ".bin");
 
@@ -79,6 +109,12 @@ public class MailStorage {
         }
     }
 
+    /**
+     * Verifica se un'email è registrata.
+     *
+     * @param account l'account email da verificare
+     * @return true se l'email è registrata, false altrimenti
+     */
     public boolean isRegisteredEmail(String account) {
         return new File(directory, account + ".bin").exists();
     }
