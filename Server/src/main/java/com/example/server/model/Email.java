@@ -1,7 +1,5 @@
 package com.example.server.model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
@@ -53,17 +51,5 @@ public class Email implements Serializable {
                 Objects.equals(subject, email.subject) &&
                 Objects.equals(body, email.body) &&
                 Objects.equals(date, email.date);
-    }
-
-    // Converti l'email in JsonObject (Serializzazione) usando Gson
-    public JsonObject toJson() {
-        Gson gson = new Gson();
-        return gson.toJsonTree(this).getAsJsonObject();
-    }
-
-    // Crea un'istanza di Email da un JsonObject (Deserializzazione) usando Gson
-    public static Email fromJson(JsonObject emailJson) {
-        Gson gson = new Gson();
-        return gson.fromJson(emailJson, Email.class);
     }
 }
