@@ -62,19 +62,13 @@ public class MenuController {
         lbl_menu_title.setText("Benvenuto, " + client.getAccount());
         lbl_connessione.setText("Stato Connessione: Online");
         lbl_connessione.setVisible(true);
-
-        // Imposta il binding per il titolo e la checkbox
         inbox_titolo.setCellValueFactory(new PropertyValueFactory<>("subject"));
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
 
         inbox.itemsProperty().bind(client.mailListProperty());
-
-        // Aggiungi il listener per la selezione delle righe nella TableView
         inbox.getSelectionModel().selectedItemProperty().addListener((obs, oldEmail, selectedEmail) -> {
             if (selectedEmail != null) {
-                // Assicurati che i metodi getSender(), getRecipients(), getSubject(), getBody() e getDate()
-                // corrispondano ai nomi dei metodi definiti nella tua classe Email
                 String content = String.format("Mittente: %s\nDestinatari: %s\nOggetto: %s\n\nTesto: %s\nData: %s",
                         selectedEmail.getSender(),
                         selectedEmail.getRecipients(),
@@ -96,7 +90,6 @@ public class MenuController {
 
             {
                 checkBox.setOnAction(e -> {
-                    // Recupera l'oggetto Email corrispondente alla riga corrente
                     Email email = getTableView().getItems().get(getIndex());
                     email.setSelected(checkBox.isSelected());
                 });
@@ -151,8 +144,6 @@ public class MenuController {
     private void handleInboxResponse(JsonObject response) {
         if (response.has("status") && !response.get("status").isJsonNull()
                 && response.get("status").getAsString().equals("OK")) {
-
-            // Verifica se "data" esiste ed è valido
             if (!response.has("emails") || response.get("emails").isJsonNull()) {
                 updateMailList(new ArrayList<>());
                 showError("Nessun dato ricevuto dal server.");
@@ -161,12 +152,9 @@ public class MenuController {
 
             JsonElement dataElement = response.get("emails");
             JsonArray mailList = null;
-
-            // Se "data" è un array
             if (dataElement.isJsonArray()) {
                 mailList = dataElement.getAsJsonArray();
             }
-            // Se "data" è una stringa JSON, prova a convertirla
             else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
                 String jsonString = dataElement.getAsString();
                 try {
@@ -196,7 +184,6 @@ public class MenuController {
             }
 
         } else {
-            // Controllo sicuro per il messaggio di errore
             String errorMsg = (response.has("message") && !response.get("message").isJsonNull())
                     ? response.get("message").getAsString()
                     : "Errore sconosciuto";
@@ -273,7 +260,6 @@ public class MenuController {
 
     public void populateTable() {
         try {
-            //inbox.setItems(client.mailListProperty());
         } catch (Exception e) {
             showError("Errore durante il popolamento della tabella");
         }
@@ -293,7 +279,7 @@ public class MenuController {
                 try {
                     JsonObject response = serverHandler.sendCommand(data);
                     if ("OK".equals(response.get("status").getAsString())) {
-                        return true; // Rimuove l'email se il server conferma l'eliminazione
+                        return true;
                     } else {
                         Platform.runLater(() -> showError("Errore: " + response.get("message").getAsString()));
                     }
@@ -308,11 +294,8 @@ public class MenuController {
 
     @FXML
     public void replyFowardEmail(ActionEvent e) {
-        // Filtra le email selezionate tramite la checkbox
         List<Email> selectedEmails = client.getMailList().stream()
                 .filter(Email::isSelected).toList();
-
-        // Verifica che sia selezionata esattamente una email
         if (selectedEmails.size() != 1) {
             showError("Seleziona una sola email per rispondere/inoltrare.");
             return;
@@ -323,11 +306,7 @@ public class MenuController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/send_message.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-
-            // Recupera il controller del form di invio messaggio
             SendMessageController controller = fxmlLoader.getController();
-
-            // Controlla quale bottone ha innescato l'evento
             if (e.getSource() == btn_rispondi) {
                 controller.initReply(selectedEmail);
             } else if (e.getSource() == btn_inoltra) {
