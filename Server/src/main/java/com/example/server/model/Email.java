@@ -5,22 +5,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Email implements Serializable {
-    @Expose private String id;
-    @Expose private String sender;
-    @Expose private List<String> recipients;
-    @Expose private String subject;
-    @Expose private String body;
-    @Expose private String date;
+    @Expose private final String id;
+    @Expose private final String sender;
+    @Expose private final List<String> recipients;
+    @Expose private final String subject;
+    @Expose private final String body;
+    @Expose private final LocalDateTime date;
 
-    public Email() {
-    }
 
-    public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
+    public Email(String id, String sender, List<String> recipients, String subject, String body, LocalDateTime date) {
         this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.recipients = List.copyOf(recipients);
@@ -34,31 +33,8 @@ public class Email implements Serializable {
     public List<String> getRecipients() { return recipients; }
     public String getSubject() { return subject; }
     public String getBody() { return body; }
-    public String getDate() { return date; }
+    public LocalDateTime getDate() { return date; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public void setRecipients(List<String> recipients) {
-        this.recipients = recipients;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     @Override
     public String toString() {

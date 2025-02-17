@@ -3,22 +3,24 @@ package com.example.client1.Models;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import java.io.Serializable;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Email implements Serializable {
+public class Email implements Comparable<Email> {
 
-    private String id;
-    private String sender;
-    private List<String> recipients;
-    private String subject;
-    private String body;
-    private String date;
+    private final String id;
+    private final String sender;
+    private final List<String> recipients;
+    private final String subject;
+    private final String body;
+    private final LocalDateTime date;
     // Proprietà per la selezione nella TableView
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
-    public Email(String id, String sender, List<String> recipients, String subject, String body, String date) {
+    public Email(String id, String sender, List<String> recipients, String subject, String body, LocalDateTime date) {
         // Se l'id passato è nullo, ne genera uno nuovo
         this.id = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();
         this.sender = sender;
@@ -28,24 +30,13 @@ public class Email implements Serializable {
         this.date = date;
     }
 
-    public Email() {
-    }
-
     // Getters
     public String getId() { return id; }
     public String getSender() { return sender; }
     public List<String> getRecipients() { return recipients; }
     public String getSubject() { return subject; }
     public String getBody() { return body; }
-    public String getDate() { return date; }
-
-    // Setters
-    public void setId(String id) { this.id = id; }
-    public void setSender(String sender) { this.sender = sender; }
-    public void setSubject(String subject) { this.subject = subject; }
-    public void setRecipients(List<String> recipients) { this.recipients = recipients; }
-    public void setBody(String body) { this.body = body; }
-    public void setDate(String date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
 
     // Proprietà per il binding della selezione
     public BooleanProperty selectedProperty() {
@@ -75,5 +66,10 @@ public class Email implements Serializable {
                 Objects.equals(subject, email.subject) &&
                 Objects.equals(body, email.body) &&
                 Objects.equals(date, email.date);
+    }
+
+    @Override
+    public int compareTo(Email o) {
+        return o.date.compareTo(date);
     }
 }
