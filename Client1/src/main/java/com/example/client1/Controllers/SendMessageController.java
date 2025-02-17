@@ -75,30 +75,22 @@ public class SendMessageController {
 
     public void setButtonAction(Button button) {
         button.setOnAction(event -> {
-            // Raccogli i dati dai campi
             String subject = subjectField.getText();
             String message = messageBody.getText();
-
-            // Converte il campo ccField in una lista di stringhe separata da virgole
             List<String> recipients = Arrays.stream(recipientField.getText().split(","))
-                    .map(String::trim)  // Rimuove gli spazi vuoti
-                    .filter(s -> !s.isEmpty()) // Evita stringhe vuote
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
 
             if (recipients.isEmpty()) {
                 showError("Devi specificare almeno un destinatario.");
                 return;
             }
-
-            // Crea un thread per gestire l'invio asincrono
             Thread thread = new Thread(() -> {
                 try {
-                    // Crea il JSON utilizzando Gson
                     JsonObject mailData = new JsonObject();
                     mailData.addProperty("id", UUID.randomUUID().toString());
                     mailData.addProperty("sender", client.getAccount());
-
-                    // Converte la lista di destinatari in un array JSON
                     JsonArray recipientsArray = new JsonArray();
                     for (String recipient : recipients) {
                         if(!isValid(recipient)){
@@ -117,11 +109,7 @@ public class SendMessageController {
                     JsonObject dataContainer = new JsonObject();
                     dataContainer.add("mail", mailData);
                     data.add("data", dataContainer);
-
-                    // Invia il comando al server
                     JsonObject response = serverHandler.sendCommand(data);
-
-                    // Gestisci la risposta
                     Platform.runLater(() -> handleResponse(response));
 
                 } catch (IOException e) {
@@ -185,33 +173,23 @@ public class SendMessageController {
     }
 
     public void initForward(Email email) {
-        // Rimuove il binding per evitare conflitti
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         messageBody.textProperty().unbindBidirectional(client.bodyProperty());
-
-        // Imposta l'oggetto e lo rende non modificabile
         subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "      ricevuta da: " + email.getSender());
         subjectField.setEditable(false);
-
-        // Imposta il contenuto della mail e lo rende non modificabile
         messageBody.setText(email.getBody());
         messageBody.setEditable(false);
     }
 
     public void initForwardAll(Email email) {
-        // Rimuove il binding per evitare conflitti
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         messageBody.textProperty().unbindBidirectional(client.bodyProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
         recipientField.setText("alessio@notamail.com,luis@notamail.com,gigi@notamail.com");
         recipientField.setEditable(false);
-
-        // Imposta l'oggetto e lo rende non modificabile
         subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "     ricevuta da: " + email.getSender());
         subjectField.setEditable(false);
-
-        // Imposta il contenuto della mail e lo rende non modificabile
         messageBody.setText(email.getBody());
         messageBody.setEditable(false);
     }
