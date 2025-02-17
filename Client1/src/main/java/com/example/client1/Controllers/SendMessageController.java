@@ -167,7 +167,7 @@ public class SendMessageController {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
-        subjectField.setText("Risposta dell'Email: " + email.getSubject() + " ricevuta da: "+ email.getSender());
+        subjectField.setText("Risposta dell'Email: " + email.getSubject() + "     ricevuta da: "+ email.getSender());
         subjectField.setEditable(false);
 
         recipientField.setText(email.getSender());
@@ -188,9 +188,9 @@ public class SendMessageController {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
-        recipientField.setText(stringRecipients);
+        recipientField.setText(stringRecipients + "," + email.getSender());
         recipientField.setEditable(false);
-        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "     ricevuta da: " + stringRecipients);
+        subjectField.setText("Risposta dell'Email: " + email.getSubject() + "     ricevuta da: " + stringRecipients);
         subjectField.setEditable(false);
 
     }
