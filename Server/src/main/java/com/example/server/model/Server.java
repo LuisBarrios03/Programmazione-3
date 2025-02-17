@@ -5,6 +5,9 @@ import java.net.*;
 import java.util.concurrent.*;
 import com.example.server.controller.ServerController;
 
+/**
+ * La classe Server gestisce un server che accetta connessioni client e gestisce le email.
+ */
 public class Server {
     private int port;
     private boolean running = false;
@@ -14,6 +17,14 @@ public class Server {
     private ServerController serverController;
     private ExecutorService threadPool;
 
+    /**
+     * Costruttore della classe Server.
+     *
+     * @param port la porta su cui il server ascolterà le connessioni
+     * @param storageDirectory la directory in cui verranno salvate le mailbox
+     * @param controller il controller del server
+     * @param threadPoolSize la dimensione del pool di thread
+     */
     public Server(int port, File storageDirectory, ServerController controller, int threadPoolSize) {
         this.port = port;
         this.mailStorage = new MailStorage(storageDirectory);
@@ -21,6 +32,9 @@ public class Server {
         this.threadPool = Executors.newCachedThreadPool();
     }
 
+    /**
+     * Avvia il server e inizia ad accettare connessioni client.
+     */
     public void start() {
         serverThread = new Thread(() -> {
             try {
@@ -46,6 +60,9 @@ public class Server {
         serverThread.start();
     }
 
+    /**
+     * Ferma il server e chiude tutte le connessioni.
+     */
     public void stop() {
         running = false;
         if (serverSocket != null && !serverSocket.isClosed()) {
@@ -59,11 +76,17 @@ public class Server {
         }
     }
 
+    /**
+     * Inizia a ricevere connessioni client.
+     */
     public void startReceiving() {
         running = true;
         start();
     }
 
+    /**
+     * Smette di ricevere connessioni client.
+     */
     public void stopReceiving() {
         stop();
     }

@@ -14,7 +14,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+/**
+ * La classe ClientHandler gestisce le richieste dei client connessi al server.
+ * Implementa l'interfaccia Runnable per consentire l'esecuzione in un thread separato.
+ */
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final MailStorage mailStorage;
@@ -23,12 +26,23 @@ public class ClientHandler implements Runnable {
             .registerTypeAdapter(Email.class, new EmailAdapter()) // Registrazione dell'adapter
             .create();
 
+    /**
+     * Costruttore della classe ClientHandler.
+     *
+     * @param socket il socket del client connesso
+     * @param mailStorage l'istanza di MailStorage per la gestione delle mailbox
+     * @param serverController il controller del server per aggiornare l'interfaccia utente
+     */
     public ClientHandler(Socket socket, MailStorage mailStorage, ServerController serverController) {
         this.clientSocket = socket;
         this.mailStorage = mailStorage;
         this.serverController = serverController;
     }
 
+    /**
+     * Metodo eseguito quando il thread viene avviato.
+     * Gestisce la lettura delle richieste dal client e l'invio delle risposte.
+     */
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(
@@ -54,6 +68,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Gestisce le richieste ricevute dal client.
+     *
+     * @param request la richiesta JSON ricevuta dal client
+     * @return la risposta JSON da inviare al client
+     */
     private JsonObject handleRequest(JsonObject request) {
         String action = request.has("action") ? request.get("action").getAsString() : "";
         switch (action) {
@@ -77,6 +97,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Gestisce la richiesta di invio email.
+     *
+     * @param request la richiesta JSON contenente i dati dell'email
+     * @return la risposta JSON da inviare al client
+     */
     private JsonObject handleSendEmail(JsonObject request) {
         try {
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
@@ -116,6 +142,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Gestisce la richiesta di recupero della mailbox.
+     *
+     * @param request la richiesta JSON contenente i dati della mailbox
+     * @return la risposta JSON da inviare al client
+     */
     private JsonObject handleGetMailbox(JsonObject request) {
         try {
             if (!request.has("data") || !request.get("data").isJsonObject()) {
@@ -182,8 +214,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-
-
+    /**
+     * Analizza il timestamp dell'ultima verifica.
+     *
+     * @param lastCheckedStr la stringa del timestamp
+     * @return l'istanza di Instant corrispondente
+     */
     private Instant parseLastCheckedTimestamp(String lastCheckedStr) {
         try {
             lastCheckedStr = lastCheckedStr.substring(0, Math.min(lastCheckedStr.length(), 23)) + "Z"; // Tronca ai millisecondi
@@ -193,9 +229,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-
-
-
+    /**
+     * Gestisce la richiesta di eliminazione di un'email.
+     *
+     * @param request la richiesta JSON contenente i dati dell'email da eliminare
+     * @return la risposta JSON da inviare al client
+     */
     private JsonObject handleDeleteEmail(JsonObject request) {
         try {
             // La struttura attesa: { "action": "DELETE_EMAIL", "data": { "mail": { "sender": "...", "id": "..." } } }
@@ -230,6 +269,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Gestisce la richiesta di login.
+     *
+     * @param request la richiesta JSON contenente i dati di login
+     * @return la risposta JSON da inviare al client
+     */
     private JsonObject handleLogin(JsonObject request) {
         try {
             // Struttura attesa: { "data": { "mail": { "sender": "..." } } }
@@ -252,10 +297,23 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Verifica se un account email è valido.
+     *
+     * @param account l'account email da verificare
+     * @return true se l'account è valido, false altrimenti
+     */
     private boolean isValid(String account) {
         return account != null && account.matches("^[a-zA-Z0-9._%+-]+@notamail\\.com$");
     }
 
+    /**
+     * Verifica se una lista di destinatari contiene duplicati.
+     *
+     * @param recipients la lista dei destinatari
+     * @param index l'indice corrente per la verifica
+     * @return true se ci sono duplicati, false altrimenti
+     */
     private static boolean hasDuplicates(List<String> recipients, int index) {
         // Caso base: se abbiamo controllato tutti gli elementi, non ci sono duplicati
         if (index >= recipients.size() - 1) {

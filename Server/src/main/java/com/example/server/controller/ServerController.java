@@ -10,6 +10,9 @@ import javafx.scene.control.TextArea;
 
 import java.io.File;
 
+/**
+ * Controller per la gestione del server.
+ */
 public class ServerController {
     private Server server;
     private boolean running = false;
@@ -23,6 +26,11 @@ public class ServerController {
     @FXML
     private TextArea logArea;
 
+    /**
+     * Avvia il server.
+     *
+     * @param e l'evento di azione
+     */
     @FXML
     public void startServer(ActionEvent e) {
         if (!running) {
@@ -37,6 +45,9 @@ public class ServerController {
         }
     }
 
+    /**
+     * Ferma il server.
+     */
     @FXML
     public void stopServer() {
         if (running && server != null) {
@@ -50,6 +61,11 @@ public class ServerController {
         }
     }
 
+    /**
+     * Aggiunge un messaggio al log.
+     *
+     * @param message il messaggio da aggiungere
+     */
     public void appendLog(String message) {
         Platform.runLater(() -> {
             logArea.appendText(message + "\n");
