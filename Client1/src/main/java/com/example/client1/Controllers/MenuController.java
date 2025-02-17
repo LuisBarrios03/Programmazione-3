@@ -277,6 +277,17 @@ public class MenuController {
      * @param e L'evento di azione generato dal pulsante di logout.
      */
     public void logOut(ActionEvent e) {
+        // 1. Resettare tutte le informazioni del client
+        client.resetClient(); // Aggiungi un metodo nel tuo modello Client per resettare i dati
+
+        // 2. Svuotare la lista delle e-mail
+        client.getMailList().clear();  // Azzera la lista delle e-mail
+
+        // 3. Azzerare le informazioni della connessione
+        client.setConnection("OFF");
+        lbl_connessione.setText("Stato Connessione: Offline");
+
+        // 4. Reimpostare l'interfaccia utente (schermata di login)
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/client1/login.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
