@@ -19,12 +19,12 @@ import java.util.List;
  * Implementa l'interfaccia Runnable per consentire l'esecuzione in un thread separato.
  */
 public class ClientHandler implements Runnable {
-    private final Socket clientSocket;
-    private final MailStorage mailStorage;
-    private final ServerController serverController;
+    private final Socket clientSocket;           /// Socket del client connesso
+    private final MailStorage mailStorage;       /// Istanza di MailStorage per la gestione delle mailbox
+    private final ServerController serverController; /// Controller del server per aggiornare l'interfaccia utente
     private final Gson gson =  new GsonBuilder()
-            .registerTypeAdapter(Email.class, new EmailAdapter()) // Registrazione dell'adapter
-            .create();
+                    .registerTypeAdapter(Email.class, new EmailAdapter()) // Registrazione dell'adapter
+                    .create();
 
     /**
      * Costruttore della classe ClientHandler.
@@ -50,18 +50,18 @@ public class ClientHandler implements Runnable {
              PrintWriter writer = new PrintWriter(
                      new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
-            String message = reader.readLine();
+            String message = reader.readLine();  /// Legge il messaggio dal client
             if (message != null && !message.isEmpty()) {
                 serverController.appendLog("Richiesta del client: " + message);
-                JsonObject request = JsonParser.parseString(message).getAsJsonObject();
-                JsonObject response = handleRequest(request);
-                writer.println(gson.toJson(response));
+                JsonObject request = JsonParser.parseString(message).getAsJsonObject();  /// Parsea la richiesta JSON
+                JsonObject response = handleRequest(request);  /// Gestisce la richiesta
+                writer.println(gson.toJson(response));  /// Invia la risposta al client
             }
         } catch (IOException e) {
             System.err.println("Errore nella gestione del client: " + e.getMessage());
         } finally {
             try {
-                clientSocket.close();
+                clientSocket.close();  /// Chiude il socket
             } catch (IOException e) {
                 System.err.println("Errore nella chiusura del socket: " + e.getMessage());
             }
@@ -75,23 +75,23 @@ public class ClientHandler implements Runnable {
      * @return la risposta JSON da inviare al client
      */
     private JsonObject handleRequest(JsonObject request) {
-        String action = request.has("action") ? request.get("action").getAsString() : "";
+        String action = request.has("action") ? request.get("action").getAsString() : "";  /// Estrae l'azione dalla richiesta
         switch (action) {
             case "SEND_EMAIL":
-                return handleSendEmail(request);
+                return handleSendEmail(request);   /// Gestisce la richiesta di invio email
             case "GET_MAILBOX":
-                return handleGetMailbox(request);
+                return handleGetMailbox(request);  /// Gestisce la richiesta di recupero della mailbox
             case "DELETE_EMAIL":
-                return handleDeleteEmail(request);
+                return handleDeleteEmail(request);  /// Gestisce la richiesta di eliminazione dell'email
             case "LOGIN":
-                return handleLogin(request);
+                return handleLogin(request);   /// Gestisce la richiesta di login
             case "PING":
                 JsonObject pingResponse = new JsonObject();
-                pingResponse.addProperty("status", "OK");
+                pingResponse.addProperty("status", "OK");   /// Risponde con uno stato "OK" per il ping
                 return pingResponse;
             default:
                 JsonObject defaultResponse = new JsonObject();
-                defaultResponse.addProperty("status", "ERRORE");
+                defaultResponse.addProperty("status", "ERRORE");  /// Risposta di errore per azioni non valide
                 defaultResponse.addProperty("message", "Operazione non valida");
                 return defaultResponse;
         }
@@ -106,20 +106,20 @@ public class ClientHandler implements Runnable {
     private JsonObject handleSendEmail(JsonObject request) {
         try {
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
-            Email email = gson.fromJson(mailJson, Email.class);
+            Email email = gson.fromJson(mailJson, Email.class);  /// Converte la parte JSON in un'istanza di Email
             if (!hasDuplicates(email.getRecipients(),0)) {
                 for (String recipient : email.getRecipients()) {
-                    if (isValid(recipient)) {
+                    if (isValid(recipient)) {  /// Verifica se il destinatario è valido
                         File mailboxFile = new File("data", recipient + ".bin");
                         MailBox mailbox = mailboxFile.exists() ? mailStorage.loadMailBox(recipient) : new MailBox(recipient);
-                        mailbox.sendEmail(email);
-                        mailStorage.saveMailBox(mailbox);
+                        mailbox.sendEmail(email);  /// Invia l'email alla mailbox del destinatario
+                        mailStorage.saveMailBox(mailbox);  /// Salva la mailbox aggiornata
                     } else {
                         serverController.appendLog("Errore in handleSendEmail: formato non valido");
                         JsonObject response = new JsonObject();
                         response.addProperty("status", "ERRORE");
                         response.addProperty("message", "Formato non valido");
-                        return response;
+                        return response;  /// Risposta di errore se il formato dell'email non è valido
                     }
                 }
             } else {
@@ -127,7 +127,7 @@ public class ClientHandler implements Runnable {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "presenti duplicati");
-                return response;
+                return response;  /// Risposta di errore se ci sono duplicati nei destinatari
             }
             serverController.appendLog("Email inviata da: " + email.getSender());
             JsonObject response = new JsonObject();
@@ -150,11 +150,11 @@ public class ClientHandler implements Runnable {
      */
     private JsonObject handleGetMailbox(JsonObject request) {
         try {
-            if (!request.has("data") || !request.get("data").isJsonObject()) {
+            if (!request.has("data") || !request.get("data").isJsonObject()) {  /// Verifica la struttura della richiesta
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "Richiesta malformata");
-                return response;
+                return response;  /// Risposta di errore se la richiesta è malformata
             }
 
             JsonObject dataObj = request.getAsJsonObject("data");
@@ -165,24 +165,24 @@ public class ClientHandler implements Runnable {
                 mailJson = dataObj;
             }
 
-            if (!mailJson.has("sender")) {
+            if (!mailJson.has("sender")) {  /// Verifica che sia presente il mittente
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "Sender non specificato");
-                return response;
+                return response;  /// Risposta di errore se il mittente non è specificato
             }
 
             String sender = mailJson.get("sender").getAsString();
 
-            if (!mailStorage.isRegisteredEmail(sender)) {
+            if (!mailStorage.isRegisteredEmail(sender)) {  /// Verifica se l'email è registrata
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "Mailbox non trovata");
-                return response;
+                return response;  /// Risposta di errore se la mailbox non è trovata
             }
 
-            MailBox mailbox = mailStorage.loadMailBox(sender);
-            if (mailbox == null) {
+            MailBox mailbox = mailStorage.loadMailBox(sender);  /// Carica la mailbox del mittente
+            if (mailbox == null) {  /// Se la mailbox non è trovata, restituisce errore
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "Errore nel recupero della mailbox");
@@ -192,9 +192,9 @@ public class ClientHandler implements Runnable {
             JsonObject response = new JsonObject();
             response.addProperty("status", "OK");
 
-            List<Email> emails = mailbox.getEmails();
+            List<Email> emails = mailbox.getEmails();  /// Recupera tutte le email nella mailbox
 
-            if(mailJson.has("lastChecked")){
+            if(mailJson.has("lastChecked")) {  /// Filtra le email se è presente un timestamp di ultima verifica
                 String lastChecked = mailJson.get("lastChecked").getAsString();
                 LocalDateTime lastDate = LocalDateTime.parse(lastChecked);
 
@@ -203,7 +203,7 @@ public class ClientHandler implements Runnable {
                         .toList();
             }
 
-            response.add("emails", gson.toJsonTree(emails));
+            response.add("emails", gson.toJsonTree(emails));  /// Aggiunge le email alla risposta
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -222,10 +222,10 @@ public class ClientHandler implements Runnable {
      */
     private Instant parseLastCheckedTimestamp(String lastCheckedStr) {
         try {
-            lastCheckedStr = lastCheckedStr.substring(0, Math.min(lastCheckedStr.length(), 23)) + "Z"; // Tronca ai millisecondi
+            lastCheckedStr = lastCheckedStr.substring(0, Math.min(lastCheckedStr.length(), 23)) + "Z";  /// Tronca ai millisecondi
             return Instant.parse(lastCheckedStr);
         } catch (Exception e) {
-            return Instant.MIN;
+            return Instant.MIN;  /// Restituisce un timestamp minimo in caso di errore
         }
     }
 
@@ -237,19 +237,18 @@ public class ClientHandler implements Runnable {
      */
     private JsonObject handleDeleteEmail(JsonObject request) {
         try {
-            // La struttura attesa: { "action": "DELETE_EMAIL", "data": { "mail": { "sender": "...", "id": "..." } } }
             JsonObject mailJson = request.getAsJsonObject("data");
             String account = mailJson.get("sender").getAsString();
             String emailId = mailJson.get("id").getAsString();
-            File mailboxFile = new File("data", account + ".bin");
+            File mailboxFile = new File("data", account + ".bin");  /// Verifica se la mailbox esiste
             if (!mailboxFile.exists()) {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
                 response.addProperty("message", "Mailbox non trovata");
-                return response;
+                return response;  /// Risposta di errore se la mailbox non è trovata
             }
-            MailBox mailbox = MailBox.deserialize(mailboxFile);
-            if (mailbox.removeEmail(emailId)) {
+            MailBox mailbox = MailBox.deserialize(mailboxFile);  /// Carica la mailbox
+            if (mailbox.removeEmail(emailId)) {  /// Rimuove l'email e salva la mailbox aggiornata
                 mailbox.serialize(mailboxFile);
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "OK");
@@ -277,11 +276,10 @@ public class ClientHandler implements Runnable {
      */
     private JsonObject handleLogin(JsonObject request) {
         try {
-            // Struttura attesa: { "data": { "mail": { "sender": "..." } } }
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
             String sender = mailJson.get("sender").getAsString();
             JsonObject response = new JsonObject();
-            if (mailStorage.isRegisteredEmail(sender)) {
+            if (mailStorage.isRegisteredEmail(sender)) {  /// Verifica se l'email è registrata
                 response.addProperty("status", "OK");
                 response.addProperty("message", "Login riuscito");
             } else {
@@ -315,20 +313,20 @@ public class ClientHandler implements Runnable {
      * @return true se ci sono duplicati, false altrimenti
      */
     private static boolean hasDuplicates(List<String> recipients, int index) {
-        // Caso base: se abbiamo controllato tutti gli elementi, non ci sono duplicati
+        /// Caso base: se abbiamo controllato tutti gli elementi, non ci sono duplicati
         if (index >= recipients.size() - 1) {
             return false;
         }
         String recipient = recipients.get(index);
 
-        // Controlla se il recipient corrente appare nelle posizioni successive
+        /// Controlla se il recipient corrente appare nelle posizioni successive
         for (int i = index+1; i < recipients.size(); i++) {
             if (recipient.equals(recipients.get(i))) {
                 return true;
             }
         }
 
-        // Passa al prossimo elemento ricorsivamente
+        /// Passa al prossimo elemento ricorsivamente
         return hasDuplicates(recipients, index + 1);
     }
 

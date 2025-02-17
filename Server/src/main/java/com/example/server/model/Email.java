@@ -1,102 +1,72 @@
 package com.example.server.model;
 
 import com.google.gson.annotations.Expose;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * La classe Email rappresenta un'email con mittente, destinatari, oggetto, corpo e data.
- * Implementa l'interfaccia Serializable per consentire la serializzazione degli oggetti Email.
+ * @brief La classe Email rappresenta un'email completa di mittente, destinatari, oggetto, corpo e data.
+ * @details Implementa Serializable per supportare la persistenza e l'integrazione con Gson per il formato JSON.
  */
 public class Email implements Serializable {
-    @Expose private final String id;
-    @Expose private final String sender;
-    @Expose private final List<String> recipients;
-    @Expose private final String subject;
-    @Expose private final String body;
-    @Expose private final LocalDateTime date;
+    @Expose private final String id;                /// ID univoco dell'email
+    @Expose private final String sender;            /// Mittente dell'email
+    @Expose private final List<String> recipients;  /// Lista dei destinatari
+    @Expose private final String subject;           /// Oggetto dell'email
+    @Expose private final String body;              /// Corpo del messaggio
+    @Expose private final LocalDateTime date;       /// Data e ora dell'invio
 
     /**
-     * Costruttore della classe Email.
-     *
-     * @param id L'ID univoco dell'email.
-     * @param sender Il mittente dell'email.
-     * @param recipients La lista dei destinatari dell'email.
-     * @param subject L'oggetto dell'email.
-     * @param body Il corpo dell'email.
-     * @param date La data di invio dell'email.
+     * @brief Costruttore principale della classe Email.
+     * @param id Identificatore univoco (generato automaticamente).
+     * @param sender Mittente dell'email.
+     * @param recipients Lista dei destinatari.
+     * @param subject Oggetto dell'email.
+     * @param body Contenuto del messaggio.
+     * @param date Data e ora di invio.
      */
     public Email(String id, String sender, List<String> recipients, String subject, String body, LocalDateTime date) {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().toString();         /// Genera un UUID univoco per ogni email
         this.sender = sender;
-        this.recipients = List.copyOf(recipients);
+        this.recipients = List.copyOf(recipients);     /// Crea una copia immutabile della lista
         this.subject = subject;
         this.body = body;
         this.date = date;
     }
 
-    /**
-     * Restituisce l'ID dell'email.
-     *
-     * @return L'ID dell'email.
-     */
+    /** @return Restituisce l'ID dell'email. */
     public String getId() { return id; }
 
-    /**
-     * Restituisce il mittente dell'email.
-     *
-     * @return Il mittente dell'email.
-     */
+    /** @return Restituisce il mittente dell'email. */
     public String getSender() { return sender; }
 
-    /**
-     * Restituisce la lista dei destinatari dell'email.
-     *
-     * @return La lista dei destinatari dell'email.
-     */
+    /** @return Restituisce la lista dei destinatari. */
     public List<String> getRecipients() { return recipients; }
 
-    /**
-     * Restituisce l'oggetto dell'email.
-     *
-     * @return L'oggetto dell'email.
-     */
+    /** @return Restituisce l'oggetto dell'email. */
     public String getSubject() { return subject; }
 
-    /**
-     * Restituisce il corpo dell'email.
-     *
-     * @return Il corpo dell'email.
-     */
+    /** @return Restituisce il corpo del messaggio. */
     public String getBody() { return body; }
 
-    /**
-     * Restituisce la data di invio dell'email.
-     *
-     * @return La data di invio dell'email.
-     */
+    /** @return Restituisce la data di invio. */
     public LocalDateTime getDate() { return date; }
 
     /**
-     * Restituisce una rappresentazione in formato stringa dell'email.
-     *
-     * @return Una stringa che rappresenta l'email.
+     * @brief Genera una rappresentazione testuale dell'email.
+     * @return Stringa contenente i dettagli dell'email.
      */
     @Override
     public String toString() {
-        return "ID: " + id + "\nMittente: " + sender + "\nDestinatario: " + recipients +
+        return "ID: " + id + "\nMittente: " + sender + "\nDestinatari: " + recipients +
                 "\nOggetto: " + subject + "\nData: " + date + "\n\nCorpo: " + body;
     }
 
     /**
-     * Confronta questa email con l'oggetto specificato. Restituisce true se gli oggetti sono uguali.
-     *
-     * @param o L'oggetto da confrontare con questa email.
-     * @return true se gli oggetti sono uguali, altrimenti false.
+     * @brief Confronta questa email con un altro oggetto.
+     * @param o Oggetto da confrontare.
+     * @return true se le email coincidono, false altrimenti.
      */
     @Override
     public boolean equals(Object o) {

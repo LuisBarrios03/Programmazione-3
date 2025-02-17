@@ -4,83 +4,68 @@ import java.io.*;
 import java.util.*;
 
 /**
- * La classe MailBox rappresenta una casella di posta elettronica per un account specifico.
- * Implementa l'interfaccia Serializable per consentire la serializzazione degli oggetti MailBox.
+ * @brief Rappresenta una casella di posta elettronica per un account specifico.
+ * @details Implementa Serializable per supportare la serializzazione.
  */
 public class MailBox implements Serializable {
+    /** @brief Account associato alla casella di posta */
     private final String account;
+    /** @brief Elenco delle email ricevute */
     private final List<Email> emails;
 
     /**
-     * Costruttore della classe MailBox.
-     *
+     * @brief Costruttore della classe MailBox.
      * @param account L'account associato alla casella di posta.
      */
     public MailBox(String account) {
         this.account = account;
-        this.emails = new ArrayList<>();
+        this.emails = new ArrayList<>(); /// Inizializza la lista delle email
     }
 
     /**
-     * Deserializza un oggetto MailBox da un file.
-     *
-     * @param file Il file da cui deserializzare l'oggetto MailBox.
+     * @brief Deserializza un oggetto MailBox da un file.
+     * @param file Il file sorgente.
      * @return L'oggetto MailBox deserializzato.
-     * @throws IOException Se si verifica un errore di I/O durante la deserializzazione.
-     * @throws ClassNotFoundException Se la classe MailBox non viene trovata.
+     * @throws IOException Errore durante la lettura.
+     * @throws ClassNotFoundException Classe non trovata.
      */
     public static MailBox deserialize(File file) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (MailBox) ois.readObject();
+            return (MailBox) ois.readObject(); /// Legge e restituisce l'oggetto
         }
     }
 
     /**
-     * Serializza l'oggetto MailBox in un file.
-     *
-     * @param file Il file in cui serializzare l'oggetto MailBox.
-     * @throws IOException Se si verifica un errore di I/O durante la serializzazione.
+     * @brief Serializza l'oggetto MailBox in un file.
+     * @param file Il file destinazione.
+     * @throws IOException Errore durante la scrittura.
      */
     public void serialize(File file) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            oos.writeObject(this);
+            oos.writeObject(this); /// Scrive l'oggetto nel file
         }
     }
 
-    /**
-     * Restituisce l'account associato alla casella di posta.
-     *
-     * @return L'account associato alla casella di posta.
-     */
-    public String getAccount() {
-        return account;
-    }
+    /** @brief Restituisce l'account associato. */
+    public String getAccount() { return account; }
 
     /**
-     * Invia un'email aggiungendola alla casella di posta.
-     *
-     * @param email L'email da inviare.
+     * @brief Invia un'email aggiungendola alla casella.
+     * @param email L'email da aggiungere.
      */
     public synchronized void sendEmail(Email email) {
-        emails.add(email);
+        emails.add(email); /// Aggiunge l'email alla lista
     }
 
     /**
-     * Rimuove un'email dalla casella di posta in base al suo ID.
-     *
-     * @param id L'ID dell'email da rimuovere.
-     * @return true se l'email è stata rimossa, altrimenti false.
+     * @brief Rimuove un'email dalla casella usando l'ID.
+     * @param id L'ID dell'email.
+     * @return true se rimossa, false altrimenti.
      */
     public synchronized boolean removeEmail(String id) {
-        return emails.removeIf(email -> email.getId().equals(id));
+        return emails.removeIf(email -> email.getId().equals(id)); /// Rimuove l'email corrispondente
     }
 
-    /**
-     * Restituisce la lista delle email nella casella di posta.
-     *
-     * @return La lista delle email nella casella di posta.
-     */
-    public List<Email> getEmails() {
-        return emails;
-    }
+    /** @brief Restituisce la lista completa delle email. */
+    public List<Email> getEmails() { return emails; }
 }
