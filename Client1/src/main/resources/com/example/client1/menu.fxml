@@ -49,8 +49,9 @@
 
                 <!-- Action Buttons -->
                 <Button fx:id="btn_rispondi" layoutX="697.0" layoutY="320.0" onAction="#replyFowardEmail" text="Rispondi" />
-                <Button fx:id="btn_inoltra" layoutX="709.0" layoutY="355.0" onAction="#replyFowardEmail" text="Inoltra" />
-                <Button fx:id="btn_inoltratutti" layoutX="671.0" layoutY="390.0" onAction="#replyFowardEmail" text="Inoltra a Tutti" />
+                <Button fx:id="btn_rispondiTutti" layoutX="660.0" layoutY="352.0" onAction="#replyFowardEmail" text="Rispondi a Tutti" />
+                <Button fx:id="btn_inoltra" layoutX="710.0" layoutY="384.0" onAction="#replyFowardEmail" text="Inoltra" />
+            <Button fx:id="btn_selezionaTutto" layoutX="664.0" layoutY="416.0" onAction="#selectAll" text="Seleziona tutte" />
             </children>
         </AnchorPane>
     </children>

@@ -12,12 +12,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.sql.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
@@ -40,7 +36,6 @@ public class ClientHandler implements Runnable {
              PrintWriter writer = new PrintWriter(
                      new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
-            // Lettura del messaggio: si assume che il client invii il JSON su un'unica riga.
             String message = reader.readLine();
             if (message != null && !message.isEmpty()) {
                 serverController.appendLog("Richiesta del client: " + message);
@@ -59,16 +54,6 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /**
-     * Gestisce la richiesta in ingresso.
-     * Si assume che la struttura del JSON sia la seguente:
-     * {
-     *   "action": "NOME_AZIONE",
-     *   "data": {
-     *       "mail": { ... }
-     *   }
-     * }
-     */
     private JsonObject handleRequest(JsonObject request) {
         String action = request.has("action") ? request.get("action").getAsString() : "";
         switch (action) {
@@ -94,7 +79,6 @@ public class ClientHandler implements Runnable {
 
     private JsonObject handleSendEmail(JsonObject request) {
         try {
-            // Estrae il JSON dell'email dalla struttura coerente { "data": { "mail": { ... } } }
             JsonObject mailJson = request.getAsJsonObject("data").getAsJsonObject("mail");
             Email email = gson.fromJson(mailJson, Email.class);
             if (!hasDuplicates(email.getRecipients(),0)) {
@@ -134,7 +118,6 @@ public class ClientHandler implements Runnable {
 
     private JsonObject handleGetMailbox(JsonObject request) {
         try {
-            // Verifica se "data" esiste ed è un oggetto JSON
             if (!request.has("data") || !request.get("data").isJsonObject()) {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
@@ -142,17 +125,14 @@ public class ClientHandler implements Runnable {
                 return response;
             }
 
-            // Ottiene l'oggetto "data"
             JsonObject dataObj = request.getAsJsonObject("data");
             JsonObject mailJson;
-            // Se è presente "mail", lo usa, altrimenti usa direttamente "data"
             if (dataObj.has("mail") && dataObj.get("mail").isJsonObject()) {
                 mailJson = dataObj.getAsJsonObject("mail");
             } else {
                 mailJson = dataObj;
             }
 
-            // Verifica che il campo "sender" sia presente
             if (!mailJson.has("sender")) {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
@@ -169,7 +149,7 @@ public class ClientHandler implements Runnable {
                 return response;
             }
 
-            MailBox mailbox = mailStorage.loadMailBox(sender);  // Metodo aggiornato per caricare la mailbox
+            MailBox mailbox = mailStorage.loadMailBox(sender);
             if (mailbox == null) {
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "ERRORE");
@@ -179,7 +159,6 @@ public class ClientHandler implements Runnable {
 
             JsonObject response = new JsonObject();
             response.addProperty("status", "OK");
-            // Serializza la lista di email con Gson
 
             List<Email> emails = mailbox.getEmails();
 

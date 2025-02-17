@@ -52,7 +52,7 @@ public class MenuController {
     @FXML
     private Button btn_inoltra;
     @FXML
-    private Button btn_inoltratutti;
+    private Button btn_rispondiTutti;
     @FXML
     private Label lbl_error;
 
@@ -311,8 +311,8 @@ public class MenuController {
                 controller.initReply(selectedEmail);
             } else if (e.getSource() == btn_inoltra) {
                 controller.initForward(selectedEmail);
-            } else if (e.getSource() == btn_inoltratutti){
-                controller.initForwardAll(selectedEmail);
+            } else if (e.getSource() == btn_rispondiTutti){
+                controller.initReplyAll(selectedEmail);
             }
 
             Stage stage = (Stage) ((Button) e.getSource()).getScene().getWindow();
@@ -321,6 +321,10 @@ public class MenuController {
         } catch (IOException ex) {
             showError("Errore durante la gestione della richiesta.");
         }
+    }
+
+    public void selectAll(ActionEvent e){
+        client.getMailList().forEach(email -> email.setSelected(true));
     }
 
 
