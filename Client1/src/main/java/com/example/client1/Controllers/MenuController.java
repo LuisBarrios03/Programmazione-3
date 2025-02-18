@@ -32,10 +32,6 @@ public class MenuController {
     @FXML
     private Button btn_nuovamail;
     @FXML
-    private Button btn_cancellamail;
-    @FXML
-    private Button btn_aggiornamailbox;
-    @FXML
     private Button btn_logout;
     @FXML
     private Label lbl_connessione;
@@ -55,9 +51,6 @@ public class MenuController {
     private Button btn_rispondiTutti;
     @FXML
     private Label lbl_error;
-    @FXML
-    private Label lbl_nuoveEmails;
-
 
     @FXML
     public void initialize() {
@@ -69,6 +62,7 @@ public class MenuController {
         inbox_crocette.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         inbox_crocette.setCellFactory(tc -> createCheckBoxTableCell());
         inbox.itemsProperty().bind(client.mailListProperty());
+
         inbox.getSelectionModel().selectedItemProperty().addListener((obs, oldEmail, selectedEmail) -> {
             if (selectedEmail != null) {
                 String content = String.format("Mittente: %s\nDestinatari: %s\nOggetto: %s\n\nTesto: %s\nData: %s",
@@ -84,7 +78,6 @@ public class MenuController {
         scheduleConnectionStatusUpdates();
         updateInbox();
     }
-
 
     private CheckBoxTableCell<Email, Boolean> createCheckBoxTableCell() {
         return new CheckBoxTableCell<>() {
@@ -121,7 +114,7 @@ public class MenuController {
 
         String date = null;
         ListProperty<Email> emails = client.mailListProperty();
-        if(!emails.isEmpty()){
+        if (!emails.isEmpty()) {
             emails.sort(null);
             date = emails.get(0).getDate().toString();
         }
@@ -156,8 +149,7 @@ public class MenuController {
             JsonArray mailList = null;
             if (dataElement.isJsonArray()) {
                 mailList = dataElement.getAsJsonArray();
-            }
-            else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
+            } else if (dataElement.isJsonPrimitive() && dataElement.getAsJsonPrimitive().isString()) {
                 String jsonString = dataElement.getAsString();
                 try {
                     mailList = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -180,16 +172,9 @@ public class MenuController {
                     }
                 }
                 updateMailList(emails);
-
-                // Aggiorna il numero di nuove email nella label
-                Platform.runLater(() -> {
-                    lbl_nuoveEmails.setText("Hai " + emails.size() + " nuove email.");
-                    lbl_nuoveEmails.setVisible(true);
-                });
             } else {
                 updateMailList(new ArrayList<>());
                 showError("La casella di posta è vuota.");
-                Platform.runLater(() -> lbl_nuoveEmails.setVisible(false));
             }
 
         } else {
@@ -242,14 +227,14 @@ public class MenuController {
     public void logOut(ActionEvent e) {
         // 1. Fermare la schedulazione periodica
         if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown();  // Interrompe la pianificazione dei task periodici
+            scheduler.shutdown();
         }
 
         // 2. Resettare tutte le informazioni del client
-        client.resetClient(); // Aggiungi un metodo nel tuo modello Client per resettare i dati
+        client.resetClient();
 
         // 3. Svuotare la lista delle e-mail
-        client.getMailList().clear();  // Azzera la lista delle e-mail
+        client.getMailList().clear();
 
         // 4. Azzerare le informazioni della connessione
         client.setConnection("OFF");
@@ -284,6 +269,7 @@ public class MenuController {
 
     public void populateTable() {
         try {
+            // Implementa la logica per il popolamento della tabella se necessario.
         } catch (Exception e) {
             showError("Errore durante il popolamento della tabella");
         }
@@ -333,7 +319,7 @@ public class MenuController {
                 controller.initReply(selectedEmail);
             } else if (e.getSource() == btn_inoltra) {
                 controller.initForward(selectedEmail);
-            } else if (e.getSource() == btn_rispondiTutti){
+            } else if (e.getSource() == btn_rispondiTutti) {
                 controller.initReplyAll(selectedEmail);
             }
 
@@ -345,9 +331,7 @@ public class MenuController {
         }
     }
 
-    public void selectAll(ActionEvent e){
+    public void selectAll(ActionEvent e) {
         client.getMailList().forEach(email -> email.setSelected(true));
     }
-
-
 }

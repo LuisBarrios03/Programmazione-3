@@ -20,9 +20,7 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.client1.Controllers.LoginController.isValid;
@@ -167,7 +165,7 @@ public class SendMessageController {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
-        subjectField.setText("Risposta dell'Email: " + email.getSubject() + "     ricevuta da: "+ email.getSender());
+        subjectField.setText("Risposta dell'Email: " + email.getSubject() + " - ricevuta da: "+ email.getSender());
         subjectField.setEditable(false);
 
         recipientField.setText(email.getSender());
@@ -177,22 +175,31 @@ public class SendMessageController {
     public void initForward(Email email) {
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         messageBody.textProperty().unbindBidirectional(client.bodyProperty());
-        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + "      ricevuta da: " + email.getSender());
+        subjectField.setText("Inoltro dell'Email: " + email.getSubject() + " - ricevuta da: " + email.getSender());
         subjectField.setEditable(false);
         messageBody.setText(email.getBody());
         messageBody.setEditable(false);
     }
 
     public void initReplyAll(Email email) {
-        String stringRecipients= email.getRecipients().toString().replace("[", "").replace("]", "");
+        // Crea un set per evitare duplicati
+        Set<String> recipientsSet = new LinkedHashSet<>(email.getRecipients());
+        recipientsSet.add(email.getSender()); // Aggiunge il mittente
+
+        // Converte il set in una stringa separata da virgole
+        String stringRecipients = recipientsSet.stream().collect(Collectors.joining(", "));
+
+        // Scollega i binding esistenti
         subjectField.textProperty().unbindBidirectional(client.subjectProperty());
         recipientField.textProperty().unbindBidirectional(client.recipientsProperty());
 
-        recipientField.setText(stringRecipients + "," + email.getSender());
+        // Imposta i destinatari e impedisce la modifica
+        recipientField.setText(stringRecipients);
         recipientField.setEditable(false);
-        subjectField.setText("Risposta dell'Email: " + email.getSubject() + "     ricevuta da: " + stringRecipients);
-        subjectField.setEditable(false);
 
+        // Imposta l'oggetto e impedisce la modifica
+        subjectField.setText("Risposta a tutti: " + email.getSubject() + " - ricevuta da: " + stringRecipients);
+        subjectField.setEditable(false);
     }
 
     public void clearAllData() {
